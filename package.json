@@ -1,0 +1,49 @@
+{
+  "name": "arc-progress",
+  "version": "1.0.0",
+  "description": "arc-progress circular-progress progress",
+  "main": "lib/index.js",
+  "scripts": {
+    "start": "webpack-dev-server --config build/dev.js",
+    "build": "rimraf lib && npm run prod && npm run movedts && npm run min",
+    "prod": "webpack --config build/prd.js",
+    "movedts": "cp lib/src/arc-progress.d.ts lib/index.d.ts",
+    "min": "rimraf dist && npm run prod --export && rimraf lib/src",
+    "demo": "rimraf preview && webpack --config build/prod-demos.js && rimraf ../preview/static/arc-progress && cp -r preview/ ../preview/static/arc-progress",
+    "publish": "npm run prod && npm publish --registry https://registry.npmjs.org"
+  },
+  "keywords": [
+    "arc-progress",
+    "circular-progress",
+    "progress"
+  ],
+  "author": "Hzy0913",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hzy0913/arc-progress/issues"
+  },
+  "homepage": "https://github.com/Hzy0913/arc-progress#readme",
+  "devDependencies": {
+    "awesome-typescript-loader": "^5.2.1",
+    "chalk": "^2.4.2",
+    "clean-webpack-plugin": "^1.0.0",
+    "css-loader": "^2.1.0",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "file-loader": "^4.2.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-webpack-plugin": "^3.2.0",
+    "progress-bar-webpack-plugin": "^1.12.1",
+    "rimraf": "^3.0.0",
+    "style-loader": "^0.23.1",
+    "tslint": "^5.20.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-loader": "^3.5.4",
+    "typescript": "^3.6.2",
+    "url-loader": "^2.1.0",
+    "vconsole": "^3.2.2",
+    "webpack": "^4.28.3",
+    "webpack-bundle-analyzer": "^3.0.3",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.14"
+  }
+}
