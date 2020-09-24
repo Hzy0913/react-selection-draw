@@ -8,16 +8,6 @@ interface Options {
 
 }
 
-class ImageMapGenerator  {
-  private fillImage: any;
-
-  constructor({ }: Options) {
-  }
-}
-
-
-
-
 // updateLink 实例方法，用于更新links
 // getLinks 实例方法，用于获取links
 type linksType = {
