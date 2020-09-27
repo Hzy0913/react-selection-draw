@@ -20,7 +20,17 @@ function setLinkStyle(dom, style, setPosition?: boolean) {
   });
 }
 
+function createElement(options) {
+  const { classNames = [], style } = options || {} as any
+  const element = document.createElement('div');
+  Object.keys(style || {}).forEach(attribute => element.style[attribute] = style[attribute]);
+  element.classList.add(...classNames);
+
+  return element;
+}
+
 export {
   setLinkStyle,
   setOffsetStyle,
+  createElement,
 }
