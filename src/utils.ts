@@ -29,8 +29,14 @@ function createElement(options) {
   return element;
 }
 
+function delay(time: number) {
+  return new Promise(resolve => setTimeout(() => resolve(), time));
+}
+
+
 export {
   setLinkStyle,
   setOffsetStyle,
   createElement,
+  delay,
 }
