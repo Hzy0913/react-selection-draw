@@ -33,10 +33,24 @@ function delay(time: number) {
   return new Promise(resolve => setTimeout(() => resolve(), time));
 }
 
+function finddDomByDataId(dom) {
+  const resut: any = (function findId(node, count) {
+    if (!node || count > 3) return;
+
+    const id = node && node.getAttribute('data-id');
+
+    if (id) return { id, node };
+
+    return findId(node.parentNode, count++);
+  })(dom, 0);
+
+  return resut || {};
+}
 
 export {
   setLinkStyle,
   setOffsetStyle,
   createElement,
   delay,
+  finddDomByDataId,
 }
