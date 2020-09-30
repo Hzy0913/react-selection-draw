@@ -4,10 +4,6 @@ import * as Rx from 'rxjs/Rx';
 import FontIcon from "src/components/icons/FontIcon";
 import { computedPosition, setLinkStyle, computedXandY, computedSize, setOffsetStyle } from './utils';
 
-interface Options {
-
-}
-
 // updateLink 实例方法，用于更新links
 // getLinks 实例方法，用于获取links
 type linksType = {
@@ -31,6 +27,7 @@ interface optionInterface {
   selectOnChange?: (selected) => any;
   linkCreated?: (id) => any;
   getLinks?: () => any;
+  containerSize?: (size) => any;
   links?: linksType
 }
 export default class DrawLink  {
@@ -92,10 +89,11 @@ export default class DrawLink  {
   init(options) {
     const { canvasClassName, linksClassName, imgClassName, operationClassName, onDelete,
       linksChange, links = {}, linkOnClick, selectOnChange, offsetSize = 0, linkOnDblclick,
-      linkCreated,
+      linkCreated, containerSize,
     } = options as optionInterface;
     this.hooks = {
       linkCreated,
+      containerSize,
     }
     this.onDelete = onDelete;
     this.offsetSize = offsetSize;
@@ -129,8 +127,7 @@ export default class DrawLink  {
     this.mouseUpSubscriber(mouseUpObservable);
     this.linkClickSubscriber(linkClickObservable);
 
-    this.updateLink(links, true);
-    this.loadImage(imgClassName);
+    this.loadImage(imgClassName).then(() => this.updateLink(links, undefined, true))
   }
 
   mousedownSubscriber(mousedownObservable, linksClassName) {
@@ -240,8 +237,11 @@ export default class DrawLink  {
 
     const { target } = value || {};
 
-    if (target.classList.contains('image-map-link')) {
-      this.currentLinkDom = target;
+    if (target.classList.contains('link-usable-dnd')) {
+      const { id, node } = this.findHasIdDom(target);
+
+      this.currentLinkId = id;
+      this.currentLinkDom = node;
       this.useDomSetLinksInfo(target);
       this.linkMoveStart = true;
       this.canvasDom.style.display = 'block';
@@ -260,8 +260,6 @@ export default class DrawLink  {
       } else if (this.currentLinkDom) {
         this.offsetX = clientX - this.currentX; // 设置当前拖拽link的偏移量
         this.offsetY = clientY - this.currentY;
-
-        this.currentLinkId = this.currentLinkId || this.currentLinkDom.getAttribute('data-id');
         const id = this.currentLinkId;
 
         if (id) {
@@ -340,7 +338,7 @@ export default class DrawLink  {
       const { width: imgContainerWidth, height: imgContainerHeight } = this.imgContainer;
 
       if (!this.currentLinkDom) {
-        this.renderLink(undefined)
+        this.renderLink(undefined, false)
       }
 
       const direction = this.drawDirection({offsetX, offsetY, startX, startY});
@@ -390,6 +388,7 @@ export default class DrawLink  {
       };
 
       this.linkChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
+      this.currentLinkId = undefined;
 
       return true;
     }
@@ -525,26 +524,35 @@ export default class DrawLink  {
   }
 
   loadImage(imgClassName) {
-    const imgDom = document.querySelector(`.${imgClassName}`) as any;
-    if (!imgDom) return;
+    return new Promise(resolve => {
+      const imgDom = document.querySelector(`.${imgClassName}`) as any;
+      const { containerSize } = this.hooks;
+      if (!imgDom) return;
 
-    imgDom.onload = () => {
-      this.imgContainer = {
-        width: imgDom.clientWidth,
-        height: imgDom.clientHeight,
-      }
-    }
-
-    (function loopSetWidth() {
-      if (imgDom.complete) {
-        return this.imgContainer = {
+      imgDom.onload = () => {
+        this.imgContainer = {
           width: imgDom.clientWidth,
           height: imgDom.clientHeight,
         }
+
+        containerSize && containerSize(this.imgContainer)
+        resolve(this.imgContainer)
       }
 
-      setTimeout(loopSetWidth.bind(this), 20);
-    }.bind(this))();
+      (function loopSetWidth() {
+        if (imgDom.complete) {
+          this.imgContainer = {
+            width: imgDom.clientWidth,
+            height: imgDom.clientHeight,
+          }
+
+          containerSize && containerSize(this.imgContainer)
+          return resolve(this.imgContainer)
+        }
+
+        setTimeout(loopSetWidth.bind(this), 20);
+      }.bind(this))();
+    })
   }
 
   recordLinkState() {
@@ -560,7 +568,7 @@ export default class DrawLink  {
     this.linkChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
   }
 
-  renderLink(createId, showOperation?: boolean) {
+  renderLink(createId, showOperation: boolean, link?) {
     const { linkCreated } = this.hooks;
     const id = createId || String(+new Date());
     this.currentLinkDom = document.createElement('div');
@@ -576,14 +584,23 @@ export default class DrawLink  {
     <div className="link-resize link-direction-left-bottom" />
     <div className="link-resize link-direction-left-top" />
     <div className="link-resize link-direction-right-top" />
-      </div>, this.currentLinkDom);
+    <div className="link-node link-usable-dnd" >{(link || {}).text}</div>
+    </div>, this.currentLinkDom);
 
     this.currentLinkDom.setAttribute('data-id', id);
     this.currentLinkId = id;
-    this.links[id] = {};
+    this.links[id] = link || {};
     const showOperationClassName = showOperation ? undefined : 'image-map-link-no-show-operation';
-    this.currentLinkDom.classList.add(...['image-map-link', showOperationClassName].filter(v => v));
+    this.currentLinkDom.classList.add(...['image-map-link', 'link-usable-dnd', showOperationClassName].filter(v => v));
     this.linksDom.appendChild(this.currentLinkDom);
+
+    const { x: left, y: top, width, height } = this.links[id];
+    if (width) {
+      this.currentLinkDom.style.left = left + 'px';
+      this.currentLinkDom.style.top = top + 'px';
+      this.currentLinkDom.style.width = width + 'px';
+      this.currentLinkDom.style.height = height + 'px';
+    }
 
     linkCreated && linkCreated(this.currentLinkId);
     return this.currentLinkDom;
@@ -608,7 +625,7 @@ export default class DrawLink  {
     return this.links;
   }
 
-  updateLink(links = {}, isInit?: boolean) {
+  updateLink(links = {}, id?: string, isInit?: boolean) {
     const deleteLinks: string[] = Object.keys(this.links || {}).filter(key => !links[key]);
     const addLinks: string[] = isInit ? Object.keys(links): Object.keys(links).filter(key => !this.links[key]);
 
@@ -619,6 +636,10 @@ export default class DrawLink  {
     if (addLinks.length) {
       addLinks.forEach((id) => this.addLink(id, links));
       this.linkChange(this.links, addLinks, links);
+    }
+
+    if (id) {
+      this.modifyLink(id, links);
     }
   }
 
@@ -633,7 +654,7 @@ export default class DrawLink  {
       selectedEvent = event;
     }
 
-    if (event.target.classList.contains('link-resize')) {
+    if (event.target.classList.contains('link-resize') || event.target.classList.contains('link-node')) {
       const linkDom = event.target.parentNode.parentNode;
       linkDom.classList.add(selectLinkClassName);
       selectedEvent = { target: linkDom };
@@ -655,7 +676,7 @@ export default class DrawLink  {
   }
 
   addLink = (id, links) => {
-    const linkDom = this.renderLink(id, true);
+    const linkDom = this.renderLink(id, true, links[id]);
     const { x: left, y: top, width, height } = links[id] || {};
     linkDom.style.left = left + 'px';
     linkDom.style.top = top + 'px';
@@ -666,6 +687,13 @@ export default class DrawLink  {
     this.currentLinkDom = undefined;
 
     this.links[id] = links[id];
+  }
+
+  modifyLink = (id, links) => {
+    const linkDom = document.querySelector(`[data-id="${id}"]`);
+    this.linksDom.removeChild(linkDom);
+
+    this.addLink(id, links);
   }
 
   deleteLink = (id) => {
@@ -709,6 +737,20 @@ export default class DrawLink  {
     }
   }
 
+  findHasIdDom(dom) {
+    const resut: any = (function findId(node, count) {
+      if (!node || count > 3) return;
+
+      const id = node && node.getAttribute('data-id');
+
+      if (id) return { id, node };
+
+      return findId(node.parentNode, count++);
+    })(dom, 0);
+
+    return resut || {};
+  }
+
   useDomSetLinksInfo(dom) {
     const currentLinkId = dom && dom.getAttribute('data-id');
     if (!currentLinkId) return;
@@ -729,6 +771,3 @@ export default class DrawLink  {
     }
   }
 }
-
-
-export default ImageMapGenerator;
