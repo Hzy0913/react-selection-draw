@@ -1,7 +1,7 @@
 {
-  "name": "arc-progress",
+  "name": "image-map-generator",
   "version": "1.0.0",
-  "description": "arc-progress circular-progress progress",
+  "description": "image map generator link map",
   "main": "lib/index.js",
   "scripts": {
     "start": "webpack-dev-server --config build/dev.js",
@@ -13,9 +13,9 @@
     "publish": "npm run prod && npm publish --registry https://registry.npmjs.org"
   },
   "keywords": [
-    "arc-progress",
+    "image-map-generator",
     "circular-progress",
-    "progress"
+    "draw-link"
   ],
   "author": "Hzy0913",
   "license": "ISC",
