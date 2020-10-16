@@ -1,7 +1,3 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import * as Rx from 'rxjs/Rx';
-import FontIcon from "src/components/icons/FontIcon";
 import { computedPosition, setLinkStyle, computedXandY, computedSize, setOffsetStyle } from './utils';
 
 // updateLink 实例方法，用于更新links
