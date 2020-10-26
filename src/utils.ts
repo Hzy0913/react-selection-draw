@@ -61,11 +61,25 @@ function findHasIdDom(dom) {
   return resut || {};
 }
 
+function transformXandY({direction, width, height, startX, startY}) {
+  switch (direction) {
+    case 'right-bottom':
+      return { x: startX, y: startY };
+    case 'right-top':
+      return { x: startX, y: startY - height };
+    case 'left-top':
+      return { x: startX - width, y: startY - height };
+    case 'left-bottom':
+      return { x: startX - width, y: startY };
+  }
+}
+
 export {
+  delay,
   setLinkStyle,
   setOffsetStyle,
   createElement,
-  delay,
   finddDomByDataId,
   findHasIdDom,
+  transformXandY,
 }
