@@ -18,9 +18,7 @@
     "arc-progress.ts"
   ],
   "include": [
-    "src/*",
-    "example/**/*",
-    "static/**/*"
+    "example/**/*"
   ],
   "exclude": [
     "node_modules"
