@@ -9,7 +9,7 @@ const port = 8989;
 const host = '0.0.0.0';
 module.exports = {
   mode: 'development',
-  entry: path.resolve(__dirname, '../example/demos.ts'),
+  entry: path.resolve(__dirname, '../example/react.tsx'),
   output: {
     path: path.join(__dirname, 'dist'),
     filename: 'main.js',
@@ -24,7 +24,7 @@ module.exports = {
         use: ['awesome-typescript-loader'],
       },
       {
-        test: /\.tsx?$/,
+        test: /(\.tsx|\.ts)$/,
         enforce: 'pre',
         exclude: /node_modules/,
         use: [

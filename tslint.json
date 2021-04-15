@@ -3,6 +3,7 @@
   "rules": {
     "import-name": false,
     "align": false,
+    "max-len": 140,
     "no-increment-decrement": false
   },
   "linterOptions": {

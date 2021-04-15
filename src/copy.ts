@@ -1,16 +1,19 @@
-import { computedPosition, setLinkStyle, computedXandY, computedSize, setOffsetStyle } from './utils';
+import { computedPosition, setLinkStyle, createDom,
+computedXandY, computedSize, setOffsetStyle } from './utils';
 
 // updateLink 实例方法，用于更新links
 // getLinks 实例方法，用于获取links
+import Events from './events';
 type linksType = {
   [key: number]: {
-    x: number
-    y: number
-    width: number
-    height: number
-  }
-}
-interface optionInterface {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+};
+interface OptionInterface {
+  el: string | HTMLDivElement;
   canvasClassName: string;
   linksClassName: string;
   imgClassName: string;
@@ -24,9 +27,16 @@ interface optionInterface {
   linkCreated?: (id) => any;
   getLinks?: () => any;
   containerSize?: (size) => any;
-  links?: linksType
+  links?: linksType;
 }
 export default class DrawLink  {
+  events;
+
+  selectionContainer;
+  canvasContainer;
+  linksContainer;
+  imgElement;
+
   onDelete;
   linksChange;
   linkOnClick;
@@ -54,12 +64,12 @@ export default class DrawLink  {
   imgContainer = {
     width: undefined,
     height: undefined,
-  }
+  };
 
   currentLinkId; // 当前热区id
   currentLinkDom: HTMLElement; // 当前热区dom
 
-  moveStart: boolean = false; //开始绘制热区移动
+  moveStart: boolean = false; // 开始绘制热区移动
   createLinkPosition = {
     x: undefined,
     y: undefined,
@@ -69,7 +79,7 @@ export default class DrawLink  {
     startY: undefined,
   };
 
-  linkMoveStart;  //开始拖拽热区移动
+  linkMoveStart;  // 开始拖拽热区移动
   currentX; // 当前热区移动X
   currentY;
   offsetX;  // 当前热区移动X偏移量
@@ -78,19 +88,19 @@ export default class DrawLink  {
   linkSizeStart; // 开始重置热区大小
   resizeDirectionInfo; // 调整方向信息
 
-  constructor(options: optionInterface) {
+  constructor(options: OptionInterface) {
     this.init(options || {});
   }
 
   init(options) {
     const { canvasClassName, linksClassName, imgClassName, operationClassName, onDelete,
       linksChange, links = {}, linkOnClick, selectOnChange, offsetSize = 0, linkOnDblclick,
-      linkCreated, containerSize,
-    } = options as optionInterface;
+      linkCreated, containerSize, el,
+    } = options as OptionInterface;
     this.hooks = {
       linkCreated,
       containerSize,
-    }
+    };
     this.onDelete = onDelete;
     this.offsetSize = offsetSize;
     this.linksChange = linksChange;
@@ -99,14 +109,19 @@ export default class DrawLink  {
     this.selectOnChange = selectOnChange;
     this.links = new Proxy({}, {
       get(target, key) {
-        const value = target[key]
+        const value = target[key];
         return value;
       },
       set: (target, key, value) => {
         const isSet = Reflect.set(target, key, value);
         return isSet;
-      }
+      },
     });
+
+    this.createDom(el);
+
+    this.bindEvents(el);
+
     this.canvasDom = document.querySelector(`.${canvasClassName}`);
     this.linksDom = document.querySelector(`.${linksClassName}`);
     this.operationDom = document.querySelector(`.${operationClassName}`);
@@ -124,6 +139,57 @@ export default class DrawLink  {
     this.linkClickSubscriber(linkClickObservable);
 
     this.loadImage(imgClassName).then(() => this.updateLink(links, undefined, true))
+  }
+
+  bindEvents(el) {
+    this.events = new Events();
+
+    // selectionContainer, canvasContainer, linksContainer, imgElement
+
+    this.events.listener('mousedown', this.linksContainer, this.mousedownSubscriber, 'links-mousedown');
+    this.events.listener('mousemove', this.canvasContainer, this.mouseMoveObservable, 'canvas-mousemove');
+    this.events.listener('mouseleave', this.selectionContainer, this.mouseLeaveSubscriber, 'canvas-mouseleave');
+    this.events.listener('mouseup', this.canvasContainer, this.mouseUpSubscriber, 'canvas-mouseup');
+    this.events.listener('click', this.linksContainer, this.linkClickSubscriber, 'links-click');
+
+    // const mousedownObservable = Rx.Observable.fromEvent(this.linksDom, 'mousedown');
+    // const mouseMoveObservable = Rx.Observable.fromEvent(this.canvasDom, 'mousemove');
+    // const mouseLeaveObservable = Rx.Observable.fromEvent(this.operationDom, 'mouseleave');
+    // const mouseUpObservable = Rx.Observable.fromEvent(this.canvasDom, 'mouseup');
+    // const linkClickObservable = Rx.Observable.fromEvent(this.linksDom, 'click');
+  }
+
+  createDom(el) {
+    const selectionContainer = createDom({name: 'div', className: 'selection-creator-container'});
+    const canvasContainer = createDom({name: 'div', className: 'selection-creator-canvas-container'});
+    const linksContainer = createDom({name: 'div', className: 'selection-creator-links-container'});
+    const imgElement = createDom({name: 'img', className: 'selection-creator-background-img'});
+
+    selectionContainer.appendChild(canvasContainer);
+    selectionContainer.appendChild(linksContainer);
+    selectionContainer.appendChild(imgElement);
+
+    if (typeof el === 'string') {
+      document.querySelector(el).append(selectionContainer);
+    } else {
+      el.append(selectionContainer);
+    }
+
+    this.selectionContainer = selectionContainer;
+    this.canvasContainer = canvasContainer;
+    this.linksContainer = linksContainer;
+    this.imgElement = imgElement;
+
+    return { selectionContainer, canvasContainer, linksContainer, imgElement };
+    // <div className="wsc-image-map-edit-operation">
+    //   <div className="wsc-image-map-edit-operation-canvas" />
+    //   <div style={imageSize} className="wsc-image-map-edit-operation-links" />
+    //   <img
+    //     src={previewImage || (image && `${image}?x-oss-process=image/resize,w_500,limit_0`)}
+    //     className="wsc-edit-image-map-background"
+    //     style={{display: previewImage || image ? 'block' : 'none'}}
+    //   />
+    // </div>
   }
 
   mousedownSubscriber(mousedownObservable, linksClassName) {
@@ -564,24 +630,47 @@ export default class DrawLink  {
     this.linkChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
   }
 
+  createLink() {
+    this.currentLinkDom = document.createElement('div');
+  }
+
   renderLink(createId, showOperation: boolean, link?) {
     const { linkCreated } = this.hooks;
     const id = createId || String(+new Date());
-    this.currentLinkDom = document.createElement('div');
+    const linkDeleteNode = document.createElement('div');
 
-    ReactDOM.render(<div>
-      <div
-        className="link-delete"
-    onClick={(e) => this.onDelete && this.onDelete(id)}
-  >
-    <FontIcon size={14} iconName='icon-tag-guanbi' />
-      </div>
-      <div className="link-resize link-direction-right-bottom" />
-    <div className="link-resize link-direction-left-bottom" />
-    <div className="link-resize link-direction-left-top" />
-    <div className="link-resize link-direction-right-top" />
-    <div className="link-node link-usable-dnd" >{(link || {}).text}</div>
-    </div>, this.currentLinkDom);
+    const selectionNode = createDom({name: 'span', className: 'selection-item-content'});
+    const directionLeftTopNode = createDom({name: 'span', className: 'selection-direction-left-top'});
+    const directionTopNode = createDom({name: 'span', className: 'selection-direction-top'});
+    const directionRightTopNode = createDom({name: 'span', className: 'selection-direction-right-top'});
+    const directionRightNode = createDom({name: 'span', className: 'selection-direction-right'});
+    const directionRightBottomNode = createDom({name: 'span', className: 'selection-direction-right-bottom'});
+    const directionBottomNode = createDom({name: 'span', className: 'selection-direction-bottom'});
+    const directionLeftBttomNode = createDom({name: 'span', className: 'selection-direction-left-bottom'});
+    const directionLeftNode = createDom({name: 'span', className: 'selection-direction-left'});
+
+    selectionNode.appendChild(directionLeftTopNode);
+    selectionNode.appendChild(directionTopNode);
+    selectionNode.appendChild(directionRightTopNode);
+    selectionNode.appendChild(directionRightNode);
+    selectionNode.appendChild(directionRightBottomNode);
+    selectionNode.appendChild(directionBottomNode);
+    selectionNode.appendChild(directionLeftBttomNode);
+    selectionNode.appendChild(directionLeftNode);
+
+  //   ReactDOM.render(<div>
+  //     <div
+  //       className="link-delete"
+  //   onClick={(e) => this.onDelete && this.onDelete(id)}
+  // >
+  //   <FontIcon size={14} iconName='icon-tag-guanbi' />
+  //     </div>
+  //     <div className="link-resize link-direction-right-bottom" />
+  //   <div className="link-resize link-direction-left-bottom" />
+  //   <div className="link-resize link-direction-left-top" />
+  //   <div className="link-resize link-direction-right-top" />
+  //   <div className="link-node link-usable-dnd" >{(link || {}).text}</div>
+  //   </div>, this.currentLinkDom);
 
     this.currentLinkDom.setAttribute('data-id', id);
     this.currentLinkId = id;

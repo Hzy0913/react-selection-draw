@@ -74,8 +74,15 @@ function transformXandY({direction, width, height, startX, startY}) {
   }
 }
 
+function createDom({ name, className }) {
+  const node = document.createElement(name);
+  className && (node.className = className);
+  return node;
+}
+
 export {
   delay,
+  createDom,
   setLinkStyle,
   setOffsetStyle,
   createElement,
