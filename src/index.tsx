@@ -1,6 +1,7 @@
 import React from 'react';
 import Events from './events';
 import Controller from './controller-2';
+import './style.css';
 
 // interface IAppProps {
 //
@@ -94,7 +95,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     this.events.listener('click', selectionsDom, this.linkClickSubscriber, 'links-click');
   }
 
-  mousedownSubscriber = (target) => {
+  mousedownSubscriber = (event) => {
     // if (this.mousedownTimeStamp) {
     //   this.mousedownTimeStampSecond = +new Date;
     // } else {
@@ -109,11 +110,11 @@ export default class SelectionCreator extends React.Component<any, any> {
     // this.eventTarget = target;
     // this.selectionDomClickTrigger(target);
 
-    if (this.controller.setLinkPositionDown(target)) return;
+    if (this.controller.setLinkPositionDown(event)) return;
 
-    if (this.controller.createLinkDown(target)) return;
+    if (this.controller.createLinkDown(event)) return;
 
-    if (this.controller.resizeLinkDown(target)) return;
+    if (this.controller.resizeLinkDown(event)) return;
   }
 
   mouseMoveSubscriber(target) {
@@ -138,12 +139,12 @@ export default class SelectionCreator extends React.Component<any, any> {
     this.controller.resetSelectioContext();
   }
 
-  mouseMoveObservable(target) {
-    if (this.controller.setLinkPositionMove(target)) return;
+  mouseMoveObservable = (event) => {
+    if (this.controller.setLinkPositionMove(event)) return;
 
-    if (this.controller.resizeLinkMove(target)) return;
+    if (this.controller.resizeLinkMove(event)) return;
 
-    if (this.controller.createLinkMove(target)) return;
+    if (this.controller.createLinkMove(event)) return;
   }
 
   syncProperty(callback) {
@@ -159,7 +160,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     selectionOnClick && selectionOnClick(...args);
   }
 
-  mouseUpSubscriber(target) {
+  mouseUpSubscriber = (target) => {
     // const currentTimeStamp = +new Date;
     // if (this.mousedownTimeStampSecond) {
     //   this.linkDomDblclickTrigger(this.eventTarget);
@@ -176,7 +177,8 @@ export default class SelectionCreator extends React.Component<any, any> {
     if (this.controller.createLinkUp(target)) return;
   }
 
-  linkClickSubscriber(target) {
+  linkClickSubscriber = (event) => {
+    const { target } = event;
     if (!~target.classList.contains('image-map-link')) return;
 
     // this.currentSelectionDom = undefined;
@@ -189,7 +191,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     return <div
       className="selection-creator-container"
       ref={ref => this.selectionRef = ref}
-      style={{width: 400, height: 400}}
+      style={{ width: 400, height: 400 }}
     >
       <div className="selection-creator-canvas-container" />
       <div className="selection-creator-selections-container" />
