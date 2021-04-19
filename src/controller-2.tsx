@@ -286,6 +286,7 @@ export default class Controller  {
       const currentPosition = this.selections[this.currentSelectionId] || {};
       const { width: containerWidth, height: containerHeight } = this.imgInfo;
 
+      console.log(currentPosition.y , currentPosition.height, 213123123)
       this.resizeDirectionInfo = {
         direction,
         leftTopX: currentPosition.x,
@@ -294,6 +295,8 @@ export default class Controller  {
         rightBottomY: containerHeight - currentPosition.y - currentPosition.height,
         rightTopX: containerWidth - currentPosition.x - currentPosition.width,
         rightTopY: currentPosition.y,
+        leftBottomX: currentPosition.x,
+        leftBottomY: containerHeight - currentPosition.y - currentPosition.height,
       };
 
       let mergePosition = {};
@@ -304,6 +307,13 @@ export default class Controller  {
           mergePosition = {
             right: this.resizeDirectionInfo.rightBottomX,
             bottom: this.resizeDirectionInfo.rightBottomY,
+          };
+          setSelectionStyle(this.currentSelectionDom, mergePosition, true);
+          break;
+        case 'right-top':
+          mergePosition = {
+            left: this.resizeDirectionInfo.leftBottomX,
+            bottom: this.resizeDirectionInfo.leftBottomY,
           };
           setSelectionStyle(this.currentSelectionDom, mergePosition, true);
           break;
@@ -326,16 +336,31 @@ export default class Controller  {
       this.selections[this.currentSelectionId] = {
         ...this.selections[this.currentSelectionId],
         ...mergePosition,
-      }
+      };
 
       this.linkChange(this.selections, this.currentSelectionId, this.selections[this.currentSelectionId]);
 
       this.selectionSizeStart = true;
       this.canvasDom.style.display = 'block';
-      this.canvasDom.classList.add(direction === 'left-bottom' ? 'selection-resizing-nesw' : 'selection-resizing');
+      this.toggleDragingCursor('add', direction);
 
       return true;
     }
+  }
+
+  toggleDragingCursor(method: 'add' | 'remove', direction?) {
+    const directionStyle = {
+      'right-top': 'selection-resizing-nesw',
+      'left-bottom': 'selection-resizing-nesw',
+      'left-top': 'selection-resizing',
+      'right-bottom': 'selection-resizing',
+    };
+
+    if (method === 'remove') {
+      return this.canvasDom.classList[method]('selection-resizing-nesw', 'selection-resizing');
+    }
+
+    this.canvasDom.classList[method](directionStyle[direction]);
   }
 
   resizeLinkMove(value) {
@@ -345,7 +370,7 @@ export default class Controller  {
       // const { x, y } = currentPosition;
       const { width: containerWidth, height: containerHeight } = this.imgInfo;
       const currentSelectionDom = this.currentSelectionDom;
-      const { direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY } = this.resizeDirectionInfo || {};
+      const { direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY, leftBottomX, leftBottomY } = this.resizeDirectionInfo || {};
       let mergeStyle = {};
       let width;
       let height;
@@ -355,6 +380,14 @@ export default class Controller  {
           mergeStyle = {
             width: computedSize(offsetX - this.offsetSize, rightBottomX, direction, containerWidth)(containerWidth),
             height: computedSize(offsetY - this.offsetSize, rightBottomY, direction, containerHeight)(containerHeight),
+          };
+
+          setSelectionStyle(currentSelectionDom, mergeStyle)
+          break;
+        case 'right-top':
+          mergeStyle = {
+            width: computedSize(offsetX - this.offsetSize, leftBottomX, direction)(containerWidth),
+            height: computedSize(offsetY - this.offsetSize, leftBottomY, direction, containerWidth)(containerHeight),
           };
 
           setSelectionStyle(currentSelectionDom, mergeStyle)
@@ -401,7 +434,8 @@ export default class Controller  {
       this.currentSelectionDom = undefined;
       this.currentSelectionId = undefined;
       this.canvasDom.style.display = 'none';
-      this.canvasDom.classList.remove('selection-resizing', 'selection-resizing-nesw');
+
+      this.toggleDragingCursor('remove');
       return true;
     }
   }

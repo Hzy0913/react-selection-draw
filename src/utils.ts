@@ -117,6 +117,10 @@ function computedSize(offset, position, direction, containerSize?) {
     case 'left-top':
       size = containerSize - offset - position;
       break;
+    case 'right-top':
+      console.log(offset, position, direction, containerSize, 111121212)
+      size = containerSize ? containerSize - offset - position : offset - position;
+      break;
     case 'left-bottom':
       size = containerSize ? containerSize - offset - position : offset - position;
       break;
@@ -129,7 +133,7 @@ function computedSize(offset, position, direction, containerSize?) {
 
   return function minSize(maxSize) {
     return maxSize - size - position < 0 ? maxSize - position : size;
-  }
+  };
 }
 
 function computedXandY(direction, imgContainer, currentLink) {
