@@ -62,7 +62,7 @@ export default class Controller  {
   mousedownTimeStampSecond: number;
   eventTarget: any;
 
-  selections: any;
+  selections: any = {};
   imgInfo = {
     width: 400 || undefined,
     height: 400 ||  undefined,
@@ -99,7 +99,9 @@ export default class Controller  {
     Object.keys(doms).forEach(name => this[name] = doms[name]);
   }
 
-  setLinkPositionDown(target) {
+  setLinkPositionDown(event) {
+    const { target } = event;
+    console.log(target.classList, 'targettarget')
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
 
     if (target.classList.contains('link-usable-dnd')) {
@@ -110,7 +112,7 @@ export default class Controller  {
       this.useDomSetselectionsInfo(target);
       this.selectionMoveStart = true;
       this.canvasDom.style.display = 'block';
-      this.canvasDom.classList.add('link-grabbing');
+      this.canvasDom.classList.add('selection-grabbing');
 
       return true;
     }
@@ -177,10 +179,12 @@ export default class Controller  {
     }
   }
 
-  createLinkDown(target) {
+  createLinkDown(event) {
+    const { target } = event;
+
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, false);
 
-    const { offsetX, offsetY  } = target as any;
+    const { offsetX, offsetY  } = event as any;
 
     if (target.classList.contains('selection-creator-selections-container')) {
       this.moveStart = true;
@@ -205,7 +209,7 @@ export default class Controller  {
     this.selectionSizeStart = undefined;
     this.resizeDirectionInfo = undefined;
 
-    this.canvasDom.classList.remove('link-resizing', 'link-resizing-nesw');
+    this.canvasDom.classList.remove('selection-resizing', 'selection-resizing-nesw');
     this.canvasDom.style.display = 'none';
   }
 
@@ -275,8 +279,8 @@ export default class Controller  {
   resizeLinkDown(value) {
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
     const { target } = value || {};
-    if (target.classList.contains('link-resize')) {
-      const [, direction] = target.className.split(' ').find(v => ~v.indexOf('link-direction')).split('link-direction-');
+    if (target.classList.contains('selection-resize')) {
+      const [, direction] = target.className.split(' ').find(v => ~v.indexOf('selection-direction')).split('selection-direction-');
       this.currentSelectionDom = target.parentNode.parentNode;
       this.currentSelectionId = this.currentSelectionId || this.currentSelectionDom.getAttribute('data-id');
       const currentPosition = this.selections[this.currentSelectionId] || {};
@@ -293,6 +297,7 @@ export default class Controller  {
       };
 
       let mergePosition = {};
+      console.log(direction)
 
       switch (direction) {
         case 'left-top':
@@ -327,7 +332,7 @@ export default class Controller  {
 
       this.selectionSizeStart = true;
       this.canvasDom.style.display = 'block';
-      this.canvasDom.classList.add(direction === 'left-bottom' ? 'link-resizing-nesw' : 'link-resizing');
+      this.canvasDom.classList.add(direction === 'left-bottom' ? 'selection-resizing-nesw' : 'selection-resizing');
 
       return true;
     }
@@ -396,7 +401,7 @@ export default class Controller  {
       this.currentSelectionDom = undefined;
       this.currentSelectionId = undefined;
       this.canvasDom.style.display = 'none';
-      this.canvasDom.classList.remove('link-resizing', 'link-resizing-nesw');
+      this.canvasDom.classList.remove('selection-resizing', 'selection-resizing-nesw');
       return true;
     }
   }
@@ -452,9 +457,10 @@ export default class Controller  {
   }
 
   renderLink(createId, showOperation: boolean, link?) {
+    console.log(this.currentSelectionDom, 'currentSelectionDomcurrentSelectionDom')
     const { linkCreated } = this.hooks;
     const id = createId || String(+new Date());
-    // const linkDeleteNode = document.createElement('div');
+    this.currentSelectionDom = document.createElement('div');
 
     ReactDOM.render(<Selection />, this.currentSelectionDom);
 
