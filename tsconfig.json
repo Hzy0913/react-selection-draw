@@ -21,7 +21,10 @@
     "src/arc-progress.tsx"
   ],
   "include": [
-    "src/*",
+    "src/index.tsx",
+    "src/selection.tsx",
+    "src/events.ts",
+    "src/controller-2.ts",
     "example/**/*",
     "static/**/*"
   ],

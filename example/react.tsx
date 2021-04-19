@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import SelectionCreator from '../src';
 
 interface IAppProps {}
 interface IAppState {
@@ -19,7 +20,7 @@ class App extends React.Component<IAppProps, IAppState> {
   public render(): JSX.Element {
     return (
       <div className="arc-progress-container">
-        <h1>123123</h1>
+        <SelectionCreator />
       </div>
     );
   }

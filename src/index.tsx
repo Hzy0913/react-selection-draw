@@ -85,6 +85,7 @@ export default class SelectionCreator extends React.Component<any, any> {
   componentDidMount() {
     const selectionsDom = this.selectionRef.querySelector('.selection-creator-selections-container');
     const canvasDom = this.selectionRef.querySelector('.selection-creator-canvas-container');
+    this.controller.bindElementRef({ selectionsDom, canvasDom });
 
     this.events.listener('mouseleave', this.selectionRef, this.mouseLeaveSubscriber, 'canvas-mouseleave');
     this.events.listener('mousedown', selectionsDom, this.mousedownSubscriber, 'links-mousedown');
@@ -93,24 +94,24 @@ export default class SelectionCreator extends React.Component<any, any> {
     this.events.listener('click', selectionsDom, this.linkClickSubscriber, 'links-click');
   }
 
-  mousedownSubscriber(target, linksClassName) {
-    if (this.mousedownTimeStamp) {
-      this.mousedownTimeStampSecond = +new Date;
-    } else {
-      this.mousedownTimeStamp = +new Date;
-    }
-
-    setTimeout(() => {
-      this.mousedownTimeStamp = 0;
-      this.mousedownTimeStampSecond = 0;
-    }, 300);
-
-    this.eventTarget = target;
-    this.selectionDomClickTrigger(target);
+  mousedownSubscriber = (target) => {
+    // if (this.mousedownTimeStamp) {
+    //   this.mousedownTimeStampSecond = +new Date;
+    // } else {
+    //   this.mousedownTimeStamp = +new Date;
+    // }
+    //
+    // setTimeout(() => {
+    //   this.mousedownTimeStamp = 0;
+    //   this.mousedownTimeStampSecond = 0;
+    // }, 300);
+    //
+    // this.eventTarget = target;
+    // this.selectionDomClickTrigger(target);
 
     if (this.controller.setLinkPositionDown(target)) return;
 
-    if (this.controller.createLinkDown(target, linksClassName)) return;
+    if (this.controller.createLinkDown(target)) return;
 
     if (this.controller.resizeLinkDown(target)) return;
   }
@@ -128,22 +129,21 @@ export default class SelectionCreator extends React.Component<any, any> {
     propSelectionChange && propSelectionChange(...args);
   }
 
-  mouseLeaveSubscriber(mouseLeaveObservable) {
+  mouseLeaveSubscriber = (target) => {
     this.controller.removeSmallLink();
     this.controller.recordSelectionstate();
 
-    this.selectionChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
+    // this.selectionChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
 
-    this.currentSelectionDom && this.currentSelectionDom.classList.remove('image-map-link-no-show-operation');
-    this.currentLinkId = undefined;
-    this.currentSelectionDom = undefined;
-    this.moveStart = undefined;
-    this.selectionMoveStart = undefined;
-    this.selectionSizeStart = undefined;
-    this.resizeDirectionInfo = undefined;
+    this.controller.resetSelectioContext();
+  }
 
-    this.canvasContainer.classList.remove('link-resizing', 'link-resizing-nesw');
-    this.canvasContainer.style.display = 'none';
+  mouseMoveObservable(target) {
+    if (this.controller.setLinkPositionMove(target)) return;
+
+    if (this.controller.resizeLinkMove(target)) return;
+
+    if (this.controller.createLinkMove(target)) return;
   }
 
   syncProperty(callback) {
@@ -160,14 +160,14 @@ export default class SelectionCreator extends React.Component<any, any> {
   }
 
   mouseUpSubscriber(target) {
-    const currentTimeStamp = +new Date;
-    if (this.mousedownTimeStampSecond) {
-      this.linkDomDblclickTrigger(this.eventTarget);
-      this.eventTarget = undefined;
-    } else if (currentTimeStamp - this.mousedownTimeStamp < 120) {
-      this.selectionDomClickTrigger(this.eventTarget);
-      this.eventTarget = undefined;
-    }
+    // const currentTimeStamp = +new Date;
+    // if (this.mousedownTimeStampSecond) {
+    //   this.linkDomDblclickTrigger(this.eventTarget);
+    //   this.eventTarget = undefined;
+    // } else if (currentTimeStamp - this.mousedownTimeStamp < 120) {
+    //   this.selectionDomClickTrigger(this.eventTarget);
+    //   this.eventTarget = undefined;
+    // }
 
     if (this.controller.setLinkPositionUp(target)) return;
 
@@ -177,18 +177,19 @@ export default class SelectionCreator extends React.Component<any, any> {
   }
 
   linkClickSubscriber(target) {
-    if (!~target.target.classList.contains('image-map-link')) return;
+    if (!~target.classList.contains('image-map-link')) return;
 
-    this.currentSelectionDom = undefined;
-    this.selectionMoveStart = false;
-    this.canvasContainer.style.display = 'none';
-    this.currentLinkId = undefined;
+    // this.currentSelectionDom = undefined;
+    // this.selectionMoveStart = false;
+    // this.canvasContainer.style.display = 'none';
+    // this.currentLinkId = undefined;
   }
 
   render() {
     return <div
       className="selection-creator-container"
       ref={ref => this.selectionRef = ref}
+      style={{width: 400, height: 400}}
     >
       <div className="selection-creator-canvas-container" />
       <div className="selection-creator-selections-container" />

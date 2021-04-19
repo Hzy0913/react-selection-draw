@@ -1,5 +1,8 @@
-import { computedPosition, setselectionstyle, createDom,
+import { computedPosition, setSelectionStyle,
   computedXandY, computedSize, setOffsetStyle } from './utils';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Selection from './selection';
 
 // // updateLink 实例方法，用于更新selections
 // // getselections 实例方法，用于获取selections
@@ -61,8 +64,8 @@ export default class Controller  {
 
   selections: any;
   imgInfo = {
-    width: undefined,
-    height: undefined,
+    width: 400 || undefined,
+    height: 400 ||  undefined,
   };
 
   currentSelectionId; // 当前热区id
@@ -86,6 +89,15 @@ export default class Controller  {
 
   selectionSizeStart; // 开始重置热区大小
   resizeDirectionInfo; // 调整方向信息
+
+
+  constructor() {
+    this.recordSelectionstate = this.recordSelectionstate.bind(this);
+  }
+
+  bindElementRef(doms) {
+    Object.keys(doms).forEach(name => this[name] = doms[name]);
+  }
 
   setLinkPositionDown(target) {
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
@@ -116,7 +128,7 @@ export default class Controller  {
         const id = this.currentSelectionId;
 
         if (id) {
-          const { x: positionX, y: positionY, width, height } = this.selections[id] || {};
+          // const { x: positionX, y: positionY, width, height } = this.selections[id] || {};
           const x = computedPosition({
             position: this.selections[id],
             offsetX: this.offsetX,
@@ -165,12 +177,12 @@ export default class Controller  {
     }
   }
 
-  createLinkDown(value, selectionsClassName) {
+  createLinkDown(target) {
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, false);
 
-    const { target, clientX, clientY, offsetX, offsetY  } = value || {};
+    const { offsetX, offsetY  } = target as any;
 
-    if (value.target.classList.contains(selectionsClassName)) {
+    if (target.classList.contains('selection-creator-selections-container')) {
       this.moveStart = true;
       this.createSelectionPosition.x = offsetX;
       this.createSelectionPosition.y = offsetY;
@@ -184,14 +196,27 @@ export default class Controller  {
     }
   }
 
+  resetSelectioContext() {
+    this.currentSelectionDom && this.currentSelectionDom.classList.remove('image-map-link-no-show-operation');
+    this.currentSelectionId = undefined;
+    this.currentSelectionDom = undefined;
+    this.moveStart = undefined;
+    this.selectionMoveStart = undefined;
+    this.selectionSizeStart = undefined;
+    this.resizeDirectionInfo = undefined;
+
+    this.canvasDom.classList.remove('link-resizing', 'link-resizing-nesw');
+    this.canvasDom.style.display = 'none';
+  }
+
   createLinkMove(value) {
     if (this.moveStart) {
       const { offsetX, offsetY } = value || {};
       const { startX, startY } = this.createSelectionPosition || {};
-      const { width: imgInfoWidth, height: imgInfoHeight } = this.imgInfo;
+      // const { width: imgInfoWidth, height: imgInfoHeight } = this.imgInfo;
 
       if (!this.currentSelectionDom) {
-        this.renderLink(undefined, false)
+        this.renderLink(undefined, false);
       }
 
       const direction = this.drawDirection({offsetX, offsetY, startX, startY});
@@ -275,21 +300,21 @@ export default class Controller  {
             right: this.resizeDirectionInfo.rightBottomX,
             bottom: this.resizeDirectionInfo.rightBottomY,
           };
-          setselectionstyle(this.currentSelectionDom, mergePosition, true);
+          setSelectionStyle(this.currentSelectionDom, mergePosition, true);
           break;
         case 'left-bottom':
           mergePosition = {
             right: this.resizeDirectionInfo.rightTopX,
             top: this.resizeDirectionInfo.rightTopY,
           };
-          setselectionstyle(this.currentSelectionDom, mergePosition, true)
+          setSelectionStyle(this.currentSelectionDom, mergePosition, true)
           break;
         case 'right-bottom':
           mergePosition = {
             left: this.resizeDirectionInfo.leftTopX,
             top: this.resizeDirectionInfo.leftTopY,
           };
-          setselectionstyle(this.currentSelectionDom, mergePosition, true);
+          setSelectionStyle(this.currentSelectionDom, mergePosition, true);
           break;
       }
 
@@ -311,8 +336,8 @@ export default class Controller  {
   resizeLinkMove(value) {
     if (this.selectionSizeStart) {
       const { offsetX, offsetY } = value || {};
-      const currentPosition = this.selections[this.currentSelectionId];
-      const { x, y } = currentPosition;
+      // const currentPosition = this.selections[this.currentSelectionId];
+      // const { x, y } = currentPosition;
       const { width: containerWidth, height: containerHeight } = this.imgInfo;
       const currentSelectionDom = this.currentSelectionDom;
       const { direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY } = this.resizeDirectionInfo || {};
@@ -327,7 +352,7 @@ export default class Controller  {
             height: computedSize(offsetY - this.offsetSize, rightBottomY, direction, containerHeight)(containerHeight),
           };
 
-          setselectionstyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle)
           break;
         case 'left-bottom':
           mergeStyle = {
@@ -335,7 +360,7 @@ export default class Controller  {
             height: computedSize(offsetY - this.offsetSize, rightTopY, direction)(containerHeight),
           };
 
-          setselectionstyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle)
           break;
         case 'right-bottom':
           mergeStyle = {
@@ -344,7 +369,7 @@ export default class Controller  {
           };
 
 
-          setselectionstyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle)
           break;
       }
 
@@ -409,6 +434,7 @@ export default class Controller  {
   }
 
   recordSelectionstate() {
+    console.log(this.currentSelectionId, 11112)
     const currentLink = this.selections[this.currentSelectionId];
     if (!(this.resizeDirectionInfo || {}).direction || !currentLink) return;
 
@@ -428,40 +454,9 @@ export default class Controller  {
   renderLink(createId, showOperation: boolean, link?) {
     const { linkCreated } = this.hooks;
     const id = createId || String(+new Date());
-    const linkDeleteNode = document.createElement('div');
+    // const linkDeleteNode = document.createElement('div');
 
-    const selectionNode = createDom({name: 'span', className: 'selection-item-content'});
-    const directionLeftTopNode = createDom({name: 'span', className: 'selection-direction-left-top'});
-    const directionTopNode = createDom({name: 'span', className: 'selection-direction-top'});
-    const directionRightTopNode = createDom({name: 'span', className: 'selection-direction-right-top'});
-    const directionRightNode = createDom({name: 'span', className: 'selection-direction-right'});
-    const directionRightBottomNode = createDom({name: 'span', className: 'selection-direction-right-bottom'});
-    const directionBottomNode = createDom({name: 'span', className: 'selection-direction-bottom'});
-    const directionLeftBttomNode = createDom({name: 'span', className: 'selection-direction-left-bottom'});
-    const directionLeftNode = createDom({name: 'span', className: 'selection-direction-left'});
-
-    selectionNode.appendChild(directionLeftTopNode);
-    selectionNode.appendChild(directionTopNode);
-    selectionNode.appendChild(directionRightTopNode);
-    selectionNode.appendChild(directionRightNode);
-    selectionNode.appendChild(directionRightBottomNode);
-    selectionNode.appendChild(directionBottomNode);
-    selectionNode.appendChild(directionLeftBttomNode);
-    selectionNode.appendChild(directionLeftNode);
-
-    //   ReactDOM.render(<div>
-    //     <div
-    //       className="link-delete"
-    //   onClick={(e) => this.onDelete && this.onDelete(id)}
-    // >
-    //   <FontIcon size={14} iconName='icon-tag-guanbi' />
-    //     </div>
-    //     <div className="link-resize link-direction-right-bottom" />
-    //   <div className="link-resize link-direction-left-bottom" />
-    //   <div className="link-resize link-direction-left-top" />
-    //   <div className="link-resize link-direction-right-top" />
-    //   <div className="link-node link-usable-dnd" >{(link || {}).text}</div>
-    //   </div>, this.currentSelectionDom);
+    ReactDOM.render(<Selection />, this.currentSelectionDom);
 
     this.currentSelectionDom.setAttribute('data-id', id);
     this.currentSelectionId = id;
@@ -632,7 +627,7 @@ export default class Controller  {
     const currentSelectionId = dom && dom.getAttribute('data-id');
     if (!currentSelectionId) return;
 
-    const { width, x } = this.selections[currentSelectionId];
+    // const { width, x } = this.selections[currentSelectionId];
 
     if (dom) {
       const { width: domWidth, height: domHeight } = dom.getBoundingClientRect() || {};
