@@ -109,23 +109,35 @@ function computedPosition({ position, offsetX, offsetY, container } : any) {
   }
 }
 
-function computedSize(offset, position, direction, containerSize?) {
+function computedSize({ direction, offset, position, containerSize, sectionSize }: {direction; offset; position; containerSize?; sectionSize?}) {
   const minSizeNume = 12;
   let size = 0;
 
+  console.log(offset, position, direction, containerSize, 123123123)
   switch (direction) {
     case 'left-top':
       size = containerSize - offset - position;
       break;
+    case 'top':
+      size = sectionSize ? sectionSize : containerSize - offset - position;
+      break;
     case 'right-top':
-      console.log(offset, position, direction, containerSize, 111121212)
       size = containerSize ? containerSize - offset - position : offset - position;
+      break;
+    case 'right':
+      size = sectionSize ? sectionSize : offset - position;
       break;
     case 'left-bottom':
       size = containerSize ? containerSize - offset - position : offset - position;
       break;
+    case 'bottom':
+      size = sectionSize ? sectionSize : offset - position;
+      break;
     case 'right-bottom':
       size = offset - position;
+      break;
+    case 'left':
+      size = sectionSize ? sectionSize : containerSize - offset - position
       break;
   }
 
