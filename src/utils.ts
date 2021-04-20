@@ -156,17 +156,44 @@ function computedXandY(direction, imgContainer, currentLink) {
     case 'left-top':
       return {
         x: containerWidth - right - width,
-        y: containerHeight - bottom - height
+        y: containerHeight - bottom - height,
+      };
+    case 'top':
+      return {
+        x: left,
+        y: containerHeight - bottom - height,
+      };
+    case 'right-top':
+      console.log('width', width, 'height', height, 'right', right, 'left', left, 'top', top, 'bottom',bottom, 1231231233333)
+      return {
+        x: left,
+        y: containerHeight - bottom - height,
+      };
+    case 'right':
+      return {
+        x: left,
+        y: top,
       };
     case 'left-bottom':
       return {
         x: containerWidth - right - width,
-        y: top
+        y: top,
+      };
+    case 'bottom':
+      return {
+        x: left,
+        y: top,
       };
     case 'right-bottom':
       return {
         x: left,
-        y: top
+        y: top,
+      };
+    case 'left':
+      console.log('width', width, 'height', height, 'right', right, 'left', left, 'top', top, 'bottom', bottom, 1231231233333)
+      return {
+        x: containerWidth - right - width,
+        y: top,
       };
   }
 }
