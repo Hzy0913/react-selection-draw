@@ -24,7 +24,7 @@ export default class Selection extends React.Component<IAppProps, IAppState> {
       <div className="selection-resize selection-direction-bottom" />
       <div className="selection-resize selection-direction-left-bottom" />
       <div className="selection-resize selection-direction-left" />
-      {/*<div className="selection-node link-usable-dnd" >{(link || {}).text}</div>*/}
+      {/*<div className="selection-node selection-usable-dnd" >{(link || {}).text}</div>*/}
     </div>;
   }
 }

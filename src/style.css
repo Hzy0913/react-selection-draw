@@ -1,5 +1,6 @@
 .selection-creator-container{
   position: relative;
+  background: #0a3d6b;
 }
 .selection-creator-container .selection-creator-canvas-container{
   position: absolute;
@@ -25,65 +26,68 @@
   z-index: 1;
   cursor: crosshair;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link{
+.selection-creator-container .selection-creator-selections-container .selection-node{
   background: rgba(18,103,98,0.6);
   border: 1px solid #7AFFF6;
   position: absolute;
   cursor: pointer;
   box-sizing: border-box;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-resize{
+.selection-creator-container .selection-creator-selections-container .selection-node.selection-no-show-operation .selection-item-content{
+  display: none;
+}
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-resize{
   position: absolute;
   cursor: nwse-resize;
   width: 6px;
   height: 6px;
   background: #7AFFF6;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-resize{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-resize{
   position: absolute;
   cursor: nwse-resize;
   width: 6px;
   height: 6px;
   background: #7AFFF6;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-left-top{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-left-top{
   left: -3px;
   top: -3px;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-top{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-top{
   left: 50%;
   top: -3px;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-right-top{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-right-top{
   right: -3px;
   top: -3px;
   cursor: nesw-resize;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-right{
-  right: 0;
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-right{
+  right: -3px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-right-bottom{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-right-bottom{
   right: -3px;
   bottom: -3px;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-bottom{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-bottom{
   left: 50%;
   bottom: -3px;
   transform: translateX(-50%);
   cursor: ns-resize;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-left-bottom{
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-left-bottom{
   left: -3px;
   bottom: -3px;
   cursor: nesw-resize;
 }
-.selection-creator-container .selection-creator-selections-container .image-map-link .selection-direction-left{
-  left: 0;
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-direction-left{
+  left: -3px;
   top: 50%;
   transform: translateY(-50%);
   cursor: ew-resize;
@@ -97,10 +101,9 @@
 .selection-creator-container .selection-creator-canvas-container.selection-resizing-nesw{
   cursor: nesw-resize;
 }
-
-&.link-resizing{
-   cursor: nwse-resize;
- }
-&.link-resizing-nesw{
-   cursor: nesw-resize;
- }
+.selection-creator-container .selection-creator-canvas-container.selection-ns-resizing{
+  cursor: ns-resize;
+}
+.selection-creator-container .selection-creator-canvas-container.selection-ew-resizing{
+  cursor: ew-resize;
+}
