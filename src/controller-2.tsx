@@ -56,7 +56,7 @@ export default class Controller  {
   linkClickObservable;
 
   createMinSize: number = 10;
-  offsetSize: number = 0;
+  offsetSize: number = 50;
 
   mousedownTimeStamp: number;
   mousedownTimeStampSecond: number;
@@ -104,7 +104,7 @@ export default class Controller  {
     console.log(target.classList, 'targettarget')
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
 
-    if (target.classList.contains('link-usable-dnd')) {
+    if (target.classList.contains('selection-usable-dnd')) {
       const { id, node } = this.findHasIdDom(target);
 
       this.currentSelectionId = id;
@@ -119,12 +119,15 @@ export default class Controller  {
   }
 
   setLinkPositionMove(value) {
+    console.log(this.selectionMoveStart)
     if (this.selectionMoveStart) {
       const { clientX, clientY } = value || {};
       if (!this.currentX) { // 设置当前拖拽link的定位点
         this.currentX = clientX;
         this.currentY = clientY;
       } else if (this.currentSelectionDom) {
+        console.log(clientX, this.currentX, 1213123123);
+
         this.offsetX = clientX - this.currentX; // 设置当前拖拽link的偏移量
         this.offsetY = clientY - this.currentY;
         const id = this.currentSelectionId;
@@ -162,7 +165,9 @@ export default class Controller  {
         const { lastX, lastY } = this.selections[id] || {};
         this.selections[id].x = lastX;
         this.selections[id].y = lastY;
-        this.linkChange(this.selections, id, {x: lastX, y: lastY});
+        console.log(lastX, 1213123123);
+
+        this.linkChange(this.selections, id, { x: lastX, y: lastY });
       }
       this.useDomSetselectionsInfo(this.currentSelectionDom);
 
@@ -173,7 +178,7 @@ export default class Controller  {
       this.currentSelectionDom = undefined;
       this.selectionMoveStart = false;
       this.canvasDom.style.display = 'none';
-      this.canvasDom.classList.remove('link-grabbing');
+      this.canvasDom.classList.remove('selection-grabbing');
 
       return true;
     }
@@ -184,7 +189,7 @@ export default class Controller  {
 
     setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, false);
 
-    const { offsetX, offsetY  } = event as any;
+    const { offsetX, offsetY } = event as any;
 
     if (target.classList.contains('selection-creator-selections-container')) {
       this.moveStart = true;
@@ -200,8 +205,8 @@ export default class Controller  {
     }
   }
 
-  resetSelectioContext() {
-    this.currentSelectionDom && this.currentSelectionDom.classList.remove('image-map-link-no-show-operation');
+  resetSelectioContext = () => {
+    this.currentSelectionDom && this.currentSelectionDom.classList.remove('selection-no-show-operation');
     this.currentSelectionId = undefined;
     this.currentSelectionDom = undefined;
     this.moveStart = undefined;
@@ -209,7 +214,10 @@ export default class Controller  {
     this.selectionSizeStart = undefined;
     this.resizeDirectionInfo = undefined;
 
-    this.canvasDom.classList.remove('selection-resizing', 'selection-resizing-nesw');
+    this.currentX = undefined;
+    this.currentY = undefined;
+
+    this.toggleDragingCursor('remove');
     this.canvasDom.style.display = 'none';
   }
 
@@ -252,7 +260,7 @@ export default class Controller  {
 
   createLinkUp(value) {
     if (this.moveStart) {
-      this.currentSelectionDom && this.currentSelectionDom.classList.remove('image-map-link-no-show-operation');
+      this.currentSelectionDom && this.currentSelectionDom.classList.remove('selection-no-show-operation');
       this.removeSmallLink();
 
       this.moveStart = false;
@@ -286,7 +294,7 @@ export default class Controller  {
       const currentPosition = this.selections[this.currentSelectionId] || {};
       const { width: containerWidth, height: containerHeight } = this.imgInfo;
 
-      console.log(currentPosition.y , currentPosition.height, 213123123)
+      console.log(currentPosition, 213123123)
       this.resizeDirectionInfo = {
         direction,
         leftTopX: currentPosition.x,
@@ -384,10 +392,14 @@ export default class Controller  {
       'left-bottom': 'selection-resizing-nesw',
       'left-top': 'selection-resizing',
       'right-bottom': 'selection-resizing',
+      top: 'selection-ns-resizing',
+      bottom: 'selection-ns-resizing',
+      left: 'selection-ew-resizing',
+      right: 'selection-ew-resizing',
     };
 
     if (method === 'remove') {
-      return this.canvasDom.classList[method]('selection-resizing-nesw', 'selection-resizing');
+      return this.canvasDom.classList[method]('selection-resizing-nesw', 'selection-resizing', 'selection-ns-resizing', 'selection-ew-resizing');
     }
 
     this.canvasDom.classList[method](directionStyle[direction]);
@@ -493,10 +505,10 @@ export default class Controller  {
         case 'left':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftTopX, containerSize: containerWidth,
+              direction, offset: offsetComputedX, position: rightTopX, containerSize: containerWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedX, position: leftTopY, sectionSize: lastHeight,
+              direction, offset: offsetComputedX, position: rightTopY, sectionSize: lastHeight,
             })(containerHeight),
           };
 
@@ -594,8 +606,8 @@ export default class Controller  {
     this.currentSelectionDom.setAttribute('data-id', id);
     this.currentSelectionId = id;
     this.selections[id] = link || {};
-    const showOperationClassName = showOperation ? undefined : 'image-map-link-no-show-operation';
-    this.currentSelectionDom.classList.add(...['image-map-link', 'link-usable-dnd', showOperationClassName].filter(v => v));
+    const showOperationClassName = showOperation ? undefined : 'selection-no-show-operation';
+    this.currentSelectionDom.classList.add(...['selection-node', 'selection-usable-dnd', showOperationClassName].filter(v => v));
     this.selectionsDom.appendChild(this.currentSelectionDom);
 
     const { x: left, y: top, width, height } = this.selections[id];
@@ -651,10 +663,10 @@ export default class Controller  {
   linkDomDownTrigger(event) {
     let selectedEvent;
     const selectLinkClassName = 'image-map-link-selected';
-    const selections = this.selectionsDom.querySelectorAll('.image-map-link');
+    const selections = this.selectionsDom.querySelectorAll('.selection-node');
     selections.forEach(link => link.classList.remove(selectLinkClassName));
 
-    if (event.target.classList.contains('image-map-link')) {
+    if (event.target.classList.contains('selection-node')) {
       event.target.classList.add(selectLinkClassName);
       selectedEvent = event;
     }
@@ -765,6 +777,7 @@ export default class Controller  {
     if (dom) {
       const { width: domWidth, height: domHeight } = dom.getBoundingClientRect() || {};
 
+      console.log(dom.offsetLeft, 'dom.offsetLeftdom.offsetLeft')
       this.selections[currentSelectionId] = {
         width: domWidth,
         height: domHeight,
