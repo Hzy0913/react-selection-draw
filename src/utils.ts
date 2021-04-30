@@ -198,6 +198,10 @@ function computedXandY(direction, imgContainer, currentLink) {
   }
 }
 
+function generatorId() {
+  return String(+new Date() + Math.floor(Math.random() * 100000));
+}
+
 export {
   delay,
   createDom,
@@ -210,4 +214,5 @@ export {
   computedXandY,
   computedPosition,
   computedSize,
+  generatorId,
 };
