@@ -1,5 +1,5 @@
 import { computedPosition, setSelectionStyle,
-  computedXandY, computedSize, setOffsetStyle } from './utils';
+  computedXandY, computedSize, setOffsetStyle, generatorId } from './utils';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Selection from './selection';
@@ -90,9 +90,16 @@ export default class Controller  {
   selectionSizeStart; // 开始重置热区大小
   resizeDirectionInfo; // 调整方向信息
 
-
-  constructor() {
+  constructor(options) {
+    const { onDelete } = options || {};
+    this.setProps({ onDelete });
     this.recordSelectionstate = this.recordSelectionstate.bind(this);
+  }
+
+  setProps(props) {
+    const { onDelete } = props;
+
+    this.onDelete = onDelete;
   }
 
   bindElementRef(doms) {
@@ -598,10 +605,15 @@ export default class Controller  {
   renderLink(createId, showOperation: boolean, link?) {
     console.log(this.currentSelectionDom, 'currentSelectionDomcurrentSelectionDom')
     const { linkCreated } = this.hooks;
-    const id = createId || String(+new Date());
+    const id = createId || generatorId();
     this.currentSelectionDom = document.createElement('div');
 
-    ReactDOM.render(<Selection />, this.currentSelectionDom);
+    ReactDOM.render(<Selection
+      key={id}
+      id={id}
+      onDelete={this.onDelete}
+      doDelete={this.deleteSelection}
+    />, this.currentSelectionDom);
 
     this.currentSelectionDom.setAttribute('data-id', id);
     this.currentSelectionId = id;
@@ -647,7 +659,7 @@ export default class Controller  {
     const addselections: string[] = isInit ? Object.keys(selections) : Object.keys(selections).filter(key => !this.selections[key]);
 
     if (deleteselections.length) {
-      deleteselections.forEach(this.deleteLink);
+      deleteselections.forEach(this.deleteSelection);
     }
 
     if (addselections.length) {
@@ -713,10 +725,11 @@ export default class Controller  {
     this.addLink(id, selections);
   }
 
-  deleteLink = (id) => {
-    const link = document.querySelector(`[data-id="${id}"]`);
-    this.selectionsDom.removeChild(link);
+  deleteSelection = (id) => {
+    const selection = this.selectionsDom.querySelector(`[data-id="${id}"]`);
+    this.selectionsDom.removeChild(selection);
     delete this.selections[id];
+
     this.linkChange(this.selections, id, undefined);
   }
 
