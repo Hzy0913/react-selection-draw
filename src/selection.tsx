@@ -4,6 +4,7 @@ interface IAppProps {
   onDelete?: (id) => void | Promise<{}>;
   id: string;
   doDelete: (id) => void;
+  selectionRender: (id) => any;
 }
 interface IAppState {
 
@@ -27,12 +28,15 @@ export default class Selection extends React.Component<IAppProps, IAppState> {
   }
 
   render() {
+    const { selectionRender, id } = this.props;
+
     return <div className="selection-item-content" >
       <div className="selection-item-handle">
         <span
           className="selection-item-delete"
           onClick={this.onDeleteHandle}
         >删除</span>
+        {selectionRender && selectionRender(id)}
       </div>
       <div className="selection-resize selection-direction-left-top" />
       <div className="selection-resize selection-direction-top" />
