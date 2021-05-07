@@ -202,6 +202,20 @@ function generatorId() {
   return String(+new Date() + Math.floor(Math.random() * 100000));
 }
 
+function getDataId(dom) {
+  if (!dom) return;
+
+  return dom.getAttribute('data-id');
+}
+
+function queryParentDataIdByDom(dom) {
+  if (!dom) return;
+  const dataId = dom && getDataId(dom);
+  if (dataId) return [dataId, dom];
+
+  return queryParentDataIdByDom(dom.parentNode);
+}
+
 export {
   delay,
   createDom,
@@ -215,4 +229,6 @@ export {
   computedPosition,
   computedSize,
   generatorId,
+  getDataId,
+  queryParentDataIdByDom,
 };
