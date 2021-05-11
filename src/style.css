@@ -33,15 +33,17 @@
   cursor: pointer;
   box-sizing: border-box;
 }
-.selection-creator-container .selection-creator-selections-container .selection-node .selection-item-content{
-  /*width: 100%;*/
-  /*height: 100%;*/
-  /*position: relative;*/
+.selection-creator-container .selection-creator-selections-container .selection-node:hover .selection-item-handle{
+  display: block !important;
 }
 .selection-creator-container .selection-creator-selections-container .selection-node .selection-item-content .selection-item-handle{
-  /*position: absolute;*/
-  /*top: -30px;*/
-  /*left: 0;*/
+  position: absolute;
+  top: 0px;
+  right: 0;
+  background: rgba(255,255,255,.4);
+  padding: 2px 5px;
+  font-size: 12px;
+  display: none;
 }
 .selection-creator-container .selection-creator-selections-container .selection-node.selection-no-show-operation .selection-item-content{
   display: none;
