@@ -1,6 +1,7 @@
 import React from 'react';
 import Events from './events';
 import Controller from './controller-2';
+import { getDataId, queryParentDataIdByDom } from './utils';
 import './style.css';
 
 // interface IAppProps {
@@ -44,9 +45,9 @@ export default class SelectionCreator extends React.Component<any, any> {
   // createMinSize: number = 10;
   // offsetSize: number = 0;
   //
-  // mousedownTimeStamp: number;
+  mousedownTimeStamp: number;
   // mousedownTimeStampSecond: number;
-  // eventTarget: any;
+  eventTarget: any;
   //
   // links: any;
   // imgContainer = {
@@ -79,8 +80,17 @@ export default class SelectionCreator extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
+    const { onDelete, selectionRender } = props;
+
     this.events = new Events();
-    this.controller = new Controller();
+    this.controller = new Controller({
+      onDelete,
+      selectionRender,
+    });
+  }
+
+  updateSelection(options: {type: 'add' | 'update' | 'delete'; id?: string; content?: { x; y; width; height; node }}) {
+    this.controller.updateSelection(options);
   }
 
   componentDidMount() {
@@ -96,18 +106,10 @@ export default class SelectionCreator extends React.Component<any, any> {
   }
 
   mousedownSubscriber = (event) => {
-    // if (this.mousedownTimeStamp) {
-    //   this.mousedownTimeStampSecond = +new Date;
-    // } else {
-    //   this.mousedownTimeStamp = +new Date;
-    // }
+    this.eventTarget = event.target;
+    this.mousedownTimeStamp = +new Date;
+    setTimeout(() => this.mousedownTimeStamp = 0, 300);
     //
-    // setTimeout(() => {
-    //   this.mousedownTimeStamp = 0;
-    //   this.mousedownTimeStampSecond = 0;
-    // }, 300);
-    //
-    // this.eventTarget = target;
     // this.selectionDomClickTrigger(target);
 
     if (this.controller.setLinkPositionDown(event)) return;
@@ -155,20 +157,32 @@ export default class SelectionCreator extends React.Component<any, any> {
 
   }
 
-  selectionDomClickTrigger(...args) {
+  selectionDomClickTrigger(target?) {
     const { selectionOnClick } = this.props;
-    selectionOnClick && selectionOnClick(...args);
+    const currentTimeStamp = +new Date;
+    let dataId;
+    console.log(this.eventTarget || target, 'asdasdasdasd')
+
+    const selectedNode = this.selectionRef.querySelector('.selection-node-selected');
+    if (this.eventTarget && currentTimeStamp - this.mousedownTimeStamp < 200 && this.eventTarget.classList.contains('selection-node')) {
+      selectedNode && selectedNode.classList.remove('selection-node-selected');
+      dataId = getDataId(this.eventTarget);
+      this.eventTarget.classList.add('selection-node-selected');
+      selectionOnClick && selectionOnClick(dataId, this.eventTarget);
+      return this.eventTarget = undefined;
+    }
+
+    if (target) {
+      selectedNode && selectedNode.classList.remove('selection-node-selected');
+      const [id, targetDom] = queryParentDataIdByDom(target);
+      dataId = id;
+      targetDom.classList.add('selection-node-selected');
+      selectionOnClick && selectionOnClick(dataId, targetDom);
+    }
   }
 
   mouseUpSubscriber = (target) => {
-    // const currentTimeStamp = +new Date;
-    // if (this.mousedownTimeStampSecond) {
-    //   this.linkDomDblclickTrigger(this.eventTarget);
-    //   this.eventTarget = undefined;
-    // } else if (currentTimeStamp - this.mousedownTimeStamp < 120) {
-    //   this.selectionDomClickTrigger(this.eventTarget);
-    //   this.eventTarget = undefined;
-    // }
+    this.selectionDomClickTrigger();
 
     if (this.controller.setLinkPositionUp(target)) return;
 
@@ -179,7 +193,10 @@ export default class SelectionCreator extends React.Component<any, any> {
 
   linkClickSubscriber = (event) => {
     const { target } = event;
-    if (!~target.classList.contains('image-map-link')) return;
+    if (target.classList.contains('selection-item-operator')) return;
+    this.selectionDomClickTrigger(target);
+
+    console.log(target, 'targettargettargettargettarget')
 
     // this.currentSelectionDom = undefined;
     // this.selectionMoveStart = false;
