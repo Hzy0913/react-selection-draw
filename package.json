@@ -13,17 +13,16 @@
   },
   "keywords": [
     "react",
-    "react-arc-progress",
-    "arc-progress",
-    "circular-progress",
-    "progress"
+    "react-selection-draw",
+    "selection",
+    "selection-draw"
   ],
   "author": "Hzy0913",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Hzy0913/arc-progress/issues"
+    "url": "https://github.com/Hzy0913/react-selection-draw/issues"
   },
-  "homepage": "https://github.com/Hzy0913/arc-progress#readme",
+  "homepage": "https://github.com/Hzy0913/react-selection-draw#readme",
   "devDependencies": {
     "@types/react": "^16.9.3",
     "@types/react-dom": "^16.9.1",
