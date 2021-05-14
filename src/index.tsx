@@ -85,11 +85,12 @@ export default class SelectionCreator extends React.Component<any, any> {
   selectionDomClickTrigger(target?) {
     const { selectionOnClick } = this.props;
     const currentTimeStamp = +new Date;
-    let dataId;
-    console.log(this.eventTarget || target, 'asdasdasdasd')
-
     const selectedNode = this.selectionRef.querySelector('.selection-node-selected');
-    if (this.eventTarget && currentTimeStamp - this.mousedownTimeStamp < 200 && this.eventTarget.classList.contains('selection-node')) {
+    let dataId;
+
+    if (this.eventTarget && currentTimeStamp - this.mousedownTimeStamp < 200
+      && this.eventTarget.classList.contains('selection-node')
+    ) {
       selectedNode && selectedNode.classList.remove('selection-node-selected');
       dataId = getDataId(this.eventTarget);
       this.eventTarget.classList.add('selection-node-selected');
@@ -119,14 +120,8 @@ export default class SelectionCreator extends React.Component<any, any> {
   selectionClick = (event) => {
     const { target } = event;
     if (target.classList.contains('selection-item-operator')) return;
+
     this.selectionDomClickTrigger(target);
-
-    console.log(target, 'targettargettargettargettarget')
-
-    // this.currentSelectionDom = undefined;
-    // this.selectionMoveStart = false;
-    // this.canvasContainer.style.display = 'none';
-    // this.currentLinkId = undefined;
   }
 
   render() {
@@ -137,10 +132,6 @@ export default class SelectionCreator extends React.Component<any, any> {
     >
       <div className="selection-creator-canvas-container" />
       <div className="selection-creator-selections-container" />
-      <img
-        className="selection-creator-background-img"
-        // style={{display: previewImage || image ? 'block' : 'none'}}
-      />
     </div>;
   }
 }
