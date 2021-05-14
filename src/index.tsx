@@ -80,12 +80,13 @@ export default class SelectionCreator extends React.Component<any, any> {
   constructor(props) {
     super(props);
 
-    const { onDelete, selectionRender } = props;
+    const { onDelete, selectionRender, selectionChange } = props;
 
     this.events = new Events();
     this.controller = new Controller({
       onDelete,
       selectionRender,
+      selectionChange: selectionChange || (() => void 0),
     });
   }
 
@@ -127,9 +128,9 @@ export default class SelectionCreator extends React.Component<any, any> {
     if (this.controller.createLinkMove(target)) return;
   }
 
-  selectionChange(...args) {
+  selectionChange = (selections, id, value) => {
     const { selectionChange: propSelectionChange } = this.props;
-    propSelectionChange && propSelectionChange(...args);
+    propSelectionChange && propSelectionChange(selections, id, value);
   }
 
   mouseLeaveSubscriber = (target) => {
@@ -138,7 +139,7 @@ export default class SelectionCreator extends React.Component<any, any> {
 
     // this.selectionChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
 
-    this.controller.resetSelectioContext();
+    this.controller.resetSelectionContext();
   }
 
   mouseMoveObservable = (event) => {
