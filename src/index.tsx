@@ -1,7 +1,7 @@
 import React from 'react';
 import Events from './events';
 import Controller from './controller';
-import { getDataId, queryParentDataIdByDom } from './utils';
+import { delay, getDataId, queryParentDataIdByDom } from './utils';
 import './style.css';
 
 import { UpdateSelection } from './declare';
@@ -45,32 +45,22 @@ export default class SelectionCreator extends React.Component<any, any> {
     this.controller.bindElementRef({ selectionsDom, canvasDom });
 
     this.events.listener('mouseleave', selectionRef, this.mouseLeave, 'canvas-mouseleave');
-    this.events.listener('mousedown', selectionsDom, this.mousedown, 'links-mousedown');
+    this.events.listener('mousedown', selectionsDom, this.mousedown, 'selections-mousedown');
     this.events.listener('mousemove', canvasDom, this.mouseMove, 'canvas-mousemove');
     this.events.listener('mouseup', canvasDom, this.mouseUp, 'canvas-mouseup');
-    this.events.listener('click', selectionsDom, this.selectionClick, 'links-click');
+    this.events.listener('click', selectionsDom, this.selectionClick, 'selections-click');
   }
 
   mousedown = (event) => {
     this.eventTarget = event.target;
     this.mousedownTimeStamp = +new Date;
-    setTimeout(() => this.mousedownTimeStamp = 0, 300);
-    //
-    // this.selectionDomClickTrigger(target);
+    delay(300).then(() => this.mousedownTimeStamp = 0);
 
     if (this.controller.setLinkPositionDown(event)) return;
 
     if (this.controller.createLinkDown(event)) return;
 
     if (this.controller.resizeLinkDown(event)) return;
-  }
-
-  mouseMoveSubscriber(target) {
-    if (this.controller.setLinkPositionMove(target)) return;
-
-    if (this.controller.resizeLinkMove(target)) return;
-
-    if (this.controller.createLinkMove(target)) return;
   }
 
   selectionChange = (selections, id, value) => {
@@ -81,9 +71,6 @@ export default class SelectionCreator extends React.Component<any, any> {
   mouseLeave = (target) => {
     this.controller.removeSmallLink();
     this.controller.recordSelectionstate();
-
-    // this.selectionChange(this.links, this.currentLinkId, this.links[this.currentLinkId]);
-
     this.controller.resetSelectionContext();
   }
 
@@ -93,14 +80,6 @@ export default class SelectionCreator extends React.Component<any, any> {
     if (this.controller.resizeLinkMove(event)) return;
 
     if (this.controller.createLinkMove(event)) return;
-  }
-
-  syncProperty(callback) {
-    callback();
-  }
-
-  linkDomDblclickTrigger(target) {
-
   }
 
   selectionDomClickTrigger(target?) {
