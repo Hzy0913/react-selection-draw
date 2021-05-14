@@ -1,18 +1,11 @@
 import React from 'react';
 import Events from './events';
 import Controller from './controller';
-import { delay, getDataId, queryParentDataIdByDom } from './utils';
+import { delay, getDataId, queryParentDataIdByDom, classNames } from './utils';
+import { UpdateSelection, ReactSelectionDrawProps } from './declare';
 import './style.css';
 
-import { UpdateSelection } from './declare';
-
-// interface IAppProps {
-//
-// }
-// interface IAppState {
-//
-// }
-export default class SelectionCreator extends React.Component<any, any> {
+export default class SelectionCreator extends React.Component<ReactSelectionDrawProps, any> {
   selectionRef;
   controller: Controller;
   events;
@@ -63,9 +56,9 @@ export default class SelectionCreator extends React.Component<any, any> {
     if (this.controller.resizeLinkDown(event)) return;
   }
 
-  selectionChange = (selections, id, value) => {
+  selectionChange = (type, selections, id) => {
     const { selectionChange: propSelectionChange } = this.props;
-    propSelectionChange && propSelectionChange(selections, id, value);
+    propSelectionChange && propSelectionChange(type, selections, id);
   }
 
   mouseLeave = (target) => {
@@ -125,8 +118,9 @@ export default class SelectionCreator extends React.Component<any, any> {
   }
 
   render() {
+    const { className = '' } = this.props;
     return <div
-      className="selection-creator-container"
+      className={classNames(`selection-creator-container ${className}`)}
       ref={ref => this.selectionRef = ref}
       style={{ width: 400, height: 400 }}
     >
