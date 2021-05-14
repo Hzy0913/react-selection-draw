@@ -5,7 +5,7 @@ import { delay, getDataId, queryParentDataIdByDom, classNames } from './utils';
 import { UpdateSelection, ReactSelectionDrawProps } from './declare';
 import './style.css';
 
-export default class SelectionCreator extends React.Component<ReactSelectionDrawProps, any> {
+export default class SelectionDraw extends React.Component<ReactSelectionDrawProps, any> {
   selectionRef;
   controller: Controller;
   events;
