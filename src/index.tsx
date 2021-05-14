@@ -1,6 +1,6 @@
 import React from 'react';
 import Events from './events';
-import Controller from './controller-2';
+import Controller from './controller';
 import { getDataId, queryParentDataIdByDom } from './utils';
 import './style.css';
 
@@ -15,67 +15,8 @@ export default class SelectionCreator extends React.Component<any, any> {
   controller: Controller;
   events;
   selections;
-
-  // currentSelectionId;
-  // currentSelectionDom;
-  //
-  // selectionDom;
-  // canvasDom: HTMLElement;
-  // selectionsContainer;
-  // imgElement;
-  //
-  //
-  // linksContainer;
-  //
-  // onDelete;
-  // linksChange;
-  // linkOnClick;
-  // linkOnDblclick;
-  // selectOnChange;
-  // hooks: any = {};
-  // linksDom: HTMLElement;
-  // operationDom: HTMLElement;
-  //
-  // mousedownObservable;
-  // mouseMoveObservable;
-  // mouseLeaveObservable;
-  // mouseUpObservable;
-  // linkClickObservable;
-  //
-  // createMinSize: number = 10;
-  // offsetSize: number = 0;
-  //
   mousedownTimeStamp: number;
-  // mousedownTimeStampSecond: number;
   eventTarget: any;
-  //
-  // links: any;
-  // imgContainer = {
-  //   width: undefined,
-  //   height: undefined,
-  // };
-  //
-  // currentLinkId; // 当前热区id
-  // currentSelectionDom: HTMLElement; // 当前热区dom currentLinkDom
-  //
-  // moveStart: boolean = false; // 开始绘制热区移动
-  // createSelectionPosition = { // createLinkPosition
-  //   x: undefined,
-  //   y: undefined,
-  //   width: undefined,
-  //   height: undefined,
-  //   startX: undefined,
-  //   startY: undefined,
-  // };
-  //
-  // selectionMoveStart;  // 开始拖拽热区移动 linkMoveStart
-  // currentX; // 当前热区移动X
-  // currentY;
-  // offsetX;  // 当前热区移动X偏移量
-  // offsetY;
-  //
-  // selectionSizeStart; // 开始重置热区大小 linkSizeStart
-  // resizeDirectionInfo; // 调整方向信息
 
   constructor(props) {
     super(props);
