@@ -4,6 +4,8 @@ import Controller from './controller';
 import { getDataId, queryParentDataIdByDom } from './utils';
 import './style.css';
 
+import { UpdateSelection } from './declare';
+
 // interface IAppProps {
 //
 // }
@@ -22,7 +24,6 @@ export default class SelectionCreator extends React.Component<any, any> {
     super(props);
 
     const { onDelete, selectionRender, selectionChange } = props;
-
     this.events = new Events();
     this.controller = new Controller({
       onDelete,
@@ -31,23 +32,26 @@ export default class SelectionCreator extends React.Component<any, any> {
     });
   }
 
-  updateSelection(options: {type: 'add' | 'update' | 'delete'; id?: string; content?: { x; y; width; height; node }}) {
+  updateSelection(options: UpdateSelection) {
     this.controller.updateSelection(options);
   }
 
   componentDidMount() {
-    const selectionsDom = this.selectionRef.querySelector('.selection-creator-selections-container');
-    const canvasDom = this.selectionRef.querySelector('.selection-creator-canvas-container');
+    const selectionRef = this.selectionRef;
+
+    const selectionsDom = selectionRef.querySelector('.selection-creator-selections-container');
+    const canvasDom = selectionRef.querySelector('.selection-creator-canvas-container');
+
     this.controller.bindElementRef({ selectionsDom, canvasDom });
 
-    this.events.listener('mouseleave', this.selectionRef, this.mouseLeaveSubscriber, 'canvas-mouseleave');
-    this.events.listener('mousedown', selectionsDom, this.mousedownSubscriber, 'links-mousedown');
-    this.events.listener('mousemove', canvasDom, this.mouseMoveObservable, 'canvas-mousemove');
-    this.events.listener('mouseup', canvasDom, this.mouseUpSubscriber, 'canvas-mouseup');
-    this.events.listener('click', selectionsDom, this.linkClickSubscriber, 'links-click');
+    this.events.listener('mouseleave', selectionRef, this.mouseLeave, 'canvas-mouseleave');
+    this.events.listener('mousedown', selectionsDom, this.mousedown, 'links-mousedown');
+    this.events.listener('mousemove', canvasDom, this.mouseMove, 'canvas-mousemove');
+    this.events.listener('mouseup', canvasDom, this.mouseUp, 'canvas-mouseup');
+    this.events.listener('click', selectionsDom, this.selectionClick, 'links-click');
   }
 
-  mousedownSubscriber = (event) => {
+  mousedown = (event) => {
     this.eventTarget = event.target;
     this.mousedownTimeStamp = +new Date;
     setTimeout(() => this.mousedownTimeStamp = 0, 300);
@@ -74,7 +78,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     propSelectionChange && propSelectionChange(selections, id, value);
   }
 
-  mouseLeaveSubscriber = (target) => {
+  mouseLeave = (target) => {
     this.controller.removeSmallLink();
     this.controller.recordSelectionstate();
 
@@ -83,7 +87,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     this.controller.resetSelectionContext();
   }
 
-  mouseMoveObservable = (event) => {
+  mouseMove = (event) => {
     if (this.controller.setLinkPositionMove(event)) return;
 
     if (this.controller.resizeLinkMove(event)) return;
@@ -123,7 +127,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     }
   }
 
-  mouseUpSubscriber = (target) => {
+  mouseUp = (target) => {
     this.selectionDomClickTrigger();
 
     if (this.controller.setLinkPositionUp(target)) return;
@@ -133,7 +137,7 @@ export default class SelectionCreator extends React.Component<any, any> {
     if (this.controller.createLinkUp(target)) return;
   }
 
-  linkClickSubscriber = (event) => {
+  selectionClick = (event) => {
     const { target } = event;
     if (target.classList.contains('selection-item-operator')) return;
     this.selectionDomClickTrigger(target);
