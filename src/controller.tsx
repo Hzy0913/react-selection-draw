@@ -1,67 +1,22 @@
-import { computedPosition, setSelectionStyle,
-  computedXandY, computedSize, setOffsetStyle, generatorId } from './utils';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Selection from './selection';
+import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
+  generatorId } from './utils';
 
-// // updateLink 实例方法，用于更新selections
-// // getselections 实例方法，用于获取selections
-// import Events from './events';
-// type selectionsType = {
-//   [key: number]: {
-//     x: number;
-//     y: number;
-//     width: number;
-//     height: number;
-//   };
-// };
-// interface OptionInterface {
-//   el: string | HTMLDivElement;
-//   canvasClassName: string;
-//   selectionsClassName: string;
-//   imgClassName: string;
-//   offsetSize?: number; // 拖拽时候可超出的偏移量
-//   operationClassName: string;
-//   onDelete?: (id: string) => any;
-//   selectionChange?: (link, key, value) => any;
-//   selectionOnClick?: (event) => any;
-//   selectionOnDblclick?: (event) => any;
-//   selectOnChange?: (selected) => any;
-//   linkCreated?: (id) => any;
-//   getselections?: () => any;
-//   containerSize?: (size) => any;
-//   selections?: selectionsType;
-// }
 export default class Controller  {
-  events;
-
   selectionDom;
   canvasDom: HTMLElement;
   selectionsContainer;
-  imgElement;
-
   onDelete;
   selectionRender;
   selectionChange;
   selectionOnClick;
-  selectionOnDblclick;
   selectOnChange;
-  hooks: any = {};
   selectionsDom: HTMLElement;
   operationDom: HTMLElement;
-
-  mousedownObservable;
-  mouseMoveObservable;
-  mouseLeaveObservable;
-  mouseUpObservable;
-  linkClickObservable;
-
   createMinSize: number = 10;
   offsetSize: number = 50;
-
-  mousedownTimeStamp: number;
-  mousedownTimeStampSecond: number;
-  eventTarget: any;
 
   selections: any = {};
   imgInfo = {
@@ -568,38 +523,6 @@ export default class Controller  {
     }
   }
 
-  loadImage(imgClassName) {
-    return new Promise((resolve) => {
-      const imgDom = document.querySelector(`.${imgClassName}`) as any;
-      const { containerSize } = this.hooks;
-      if (!imgDom) return;
-
-      imgDom.onload = () => {
-        this.imgInfo = {
-          width: imgDom.clientWidth,
-          height: imgDom.clientHeight,
-        };
-
-        containerSize && containerSize(this.imgInfo);
-        resolve(this.imgInfo);
-      };
-
-      (function loopSetWidth() {
-        if (imgDom.complete) {
-          this.imgInfo = {
-            width: imgDom.clientWidth,
-            height: imgDom.clientHeight,
-          };
-
-          containerSize && containerSize(this.imgInfo);
-          return resolve(this.imgInfo);
-        }
-
-        setTimeout(loopSetWidth.bind(this), 20);
-      }.bind(this))();
-    });
-  }
-
   recordSelectionstate() {
     console.log(this.currentSelectionId, 11112)
     const currentLink = this.selections[this.currentSelectionId];
@@ -618,7 +541,6 @@ export default class Controller  {
 
   renderLink(createId, showOperation: boolean, link?) {
     console.log(this.currentSelectionDom, 'currentSelectionDomcurrentSelectionDom')
-    const { linkCreated } = this.hooks;
     const id = createId || generatorId();
     this.currentSelectionDom = document.createElement('div');
     this.selections[id] = link || {};
@@ -646,7 +568,6 @@ export default class Controller  {
       this.currentSelectionDom.style.height = height + 'px';
     }
 
-    linkCreated && linkCreated(this.currentSelectionId);
     return this.currentSelectionDom;
   }
 
@@ -671,7 +592,7 @@ export default class Controller  {
     return this.selections;
   }
 
-  updateSelection(options: {type: 'add' | 'update' | 'delete'; id?: string; content?: { x; y; width; height; node }}) {
+  updateSelection(options: {type: 'add' | 'update' | 'delete'; id?: string; content?: { x; y; width; height; node? }}) {
     const { id, type, content } = options || {};
     const { x, y, width, height, node } = content || {};
 
@@ -679,8 +600,8 @@ export default class Controller  {
       case 'update':
         if (this.selections[id]) {
           this.selections[id] = content;
-          const selection = this.selectionsDom.querySelector(`[data-id="${id}"]`);
-          setSelectionStyle(selection, { width, height, left: x, top: y });
+          const selectionDom: HTMLElement = this.selectionsDom.querySelector(`[data-id="${id}"]`);
+          setSelectionStyle(selectionDom, { width, height, left: x, top: y });
           this.selectionChange('update', this.selections, id);
         }
         break;
@@ -718,10 +639,6 @@ export default class Controller  {
 
   linkDomClickTrigger(event) {
     this.selectionOnClick && this.selectionOnClick(event)
-  }
-
-  linkDomDblclickTrigger(event) {
-    this.selectionOnDblclick && this.selectionOnDblclick(event)
   }
 
   addLink = (id, selections) => {
