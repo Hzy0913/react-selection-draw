@@ -1,22 +1,27 @@
-function setOffsetStyle(node, container, offsetSize = 0, isSet) {
+function setOffsetStyle(
+  node: HTMLDivElement,
+  container: { width: number, height: number },
+  offsetSize = 0,
+  isSet: boolean,
+) {
   const { width, height } = container;
   const size = isSet ? offsetSize : 0;
   const styles = {
-    width: width + (size * 2) + 'px',
-    height: height + (size * 2) + 'px',
-    left: -size + 'px',
-    top: -size + 'px',
-  }
+    width: `${width + (size * 2)}px`,
+    height: `${height + (size * 2)}px`,
+    left: `${-size}px`,
+    top: `${-size}px`,
+  };
 
-  Object.keys(styles).forEach(attribute => {
-    node.style[attribute] = styles[attribute];
-  });
+  Object.keys(styles).forEach((attribute: string) => node.style[attribute] = styles[attribute]);
 }
 
-function setSelectionStyle(dom, style, setPosition?: boolean) {
+function setSelectionStyle(
+  dom: HTMLDivElement, style: {[name: string]: number }, setPosition?: boolean,
+) {
   setPosition && ['left', 'right', 'top', 'bottom'].forEach(attribute => dom.style[attribute] = 'auto');
-  Object.keys(style).forEach(attribute => {
-    dom.style[attribute] = style[attribute] + 'px';
+  Object.keys(style).forEach((attribute: string) => {
+    dom.style[attribute] = `${style[attribute]}px`;
   });
 }
 
@@ -208,6 +213,10 @@ function getDataId(dom) {
   return dom.getAttribute('data-id');
 }
 
+function classNames(className = '') {
+  return className.trim();
+}
+
 function queryParentDataIdByDom(dom) {
   if (!dom) return;
   const dataId = dom && getDataId(dom);
@@ -231,4 +240,5 @@ export {
   generatorId,
   getDataId,
   queryParentDataIdByDom,
+  classNames,
 };
