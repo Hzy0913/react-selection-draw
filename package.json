@@ -1,7 +1,7 @@
 {
-  "name": "react-arc-progress",
-  "version": "1.0.2",
-  "description": "react arc-progress circular-progress progress",
+  "name": "react-selection-draw",
+  "version": "0.0.1",
+  "description": "react react-selection-draw selection selection-draw",
   "main": "lib/index.js",
   "scripts": {
     "start": "webpack-dev-server --config build/dev.js",
