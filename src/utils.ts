@@ -1,5 +1,7 @@
+import { TransformXandYType, ComputedSizeType, directionType } from './declare';
+
 function setOffsetStyle(
-  node: HTMLDivElement,
+  node: HTMLElement,
   container: { width: number, height: number },
   offsetSize = 0,
   isSet: boolean,
@@ -17,7 +19,7 @@ function setOffsetStyle(
 }
 
 function setSelectionStyle(
-  dom: HTMLDivElement, style: {[name: string]: number }, setPosition?: boolean,
+  dom: HTMLElement, style: {[name: string]: number }, setPosition?: boolean,
 ) {
   setPosition && ['left', 'right', 'top', 'bottom'].forEach(attribute => dom.style[attribute] = 'auto');
   Object.keys(style).forEach((attribute: string) => {
@@ -25,48 +27,25 @@ function setSelectionStyle(
   });
 }
 
-function createElement(options) {
-  const { classNames = [], style } = options || {} as any
-  const element = document.createElement('div');
-  Object.keys(style || {}).forEach(attribute => element.style[attribute] = style[attribute]);
-  element.classList.add(...classNames);
-
-  return element;
-}
-
-function delay(time: number) {
+function delay(time?: number) {
   return new Promise(resolve => setTimeout(() => resolve(), time));
 }
 
-function finddDomByDataId(dom) {
-  const resut: any = (function findId(node, count) {
-    if (!node || count > 3) return;
-
-    const id = node && node.getAttribute('data-id');
-
-    if (id) return { id, node };
-
-    return findId(node.parentNode, count++);
-  })(dom, 0);
-
-  return resut || {};
-}
-
 function findHasIdDom(dom) {
-  const resut: any = (function findId(node, count) {
+  const result: HTMLElement | void = (function findId(node, count: number) {
     if (!node || count > 3) return;
 
     const id = node && node.getAttribute('data-id');
 
     if (id) return { id, node };
 
-    return findId(node.parentNode, count++);
+    return findId(node.parentNode, count + 1);
   })(dom, 0);
 
-  return resut || {};
+  return result || {};
 }
 
-function transformXandY({direction, width, height, startX, startY}) {
+function transformXandY({ direction, width, height, startX, startY }: TransformXandYType) {
   switch (direction) {
     case 'right-bottom':
       return { x: startX, y: startY };
@@ -78,18 +57,6 @@ function transformXandY({direction, width, height, startX, startY}) {
       return { x: startX - width, y: startY };
   }
 }
-
-function createDom({ name, className }) {
-  const node = document.createElement(name);
-  className && (node.className = className);
-  return node;
-}
-
-
-
-
-
-
 
 function computedPosition({ position, offsetX, offsetY, container } : any) {
   const { x, y, width, height } = position || {};
@@ -103,22 +70,23 @@ function computedPosition({ position, offsetX, offsetY, container } : any) {
     }
 
     return x + offsetX;
-  } else {
-    if ((y + offsetY) < 0) return 0;
-
-    if ((y + height + offsetY) > containerHeight) {
-      return containerHeight - height;
-    }
-
-    return y + offsetY;
   }
+
+  if ((y + offsetY) < 0) return 0;
+
+  if ((y + height + offsetY) > containerHeight) {
+    return containerHeight - height;
+  }
+
+  return y + offsetY;
 }
 
-function computedSize({ direction, offset, position, containerSize, sectionSize }: {direction; offset; position; containerSize?; sectionSize?}) {
+function computedSize(
+  { direction, offset, position, containerSize, sectionSize }: ComputedSizeType
+) {
   const minSizeNume = 12;
   let size = 0;
 
-  console.log(offset, position, direction, containerSize, 123123123)
   switch (direction) {
     case 'left-top':
       size = containerSize - offset - position;
@@ -153,9 +121,9 @@ function computedSize({ direction, offset, position, containerSize, sectionSize 
   };
 }
 
-function computedXandY(direction, imgContainer, currentLink) {
-  const { width: containerWidth, height: containerHeight } = imgContainer;
-  const { width, height, right, left, top, bottom } = currentLink;
+function computedXandY(direction: directionType, container, currentSelection) {
+  const { width: containerWidth, height: containerHeight } = container;
+  const { width, height, right, left, top, bottom } = currentSelection;
 
   switch (direction) {
     case 'left-top':
@@ -169,7 +137,6 @@ function computedXandY(direction, imgContainer, currentLink) {
         y: containerHeight - bottom - height,
       };
     case 'right-top':
-      console.log('width', width, 'height', height, 'right', right, 'left', left, 'top', top, 'bottom',bottom, 1231231233333)
       return {
         x: left,
         y: containerHeight - bottom - height,
@@ -195,7 +162,6 @@ function computedXandY(direction, imgContainer, currentLink) {
         y: top,
       };
     case 'left':
-      console.log('width', width, 'height', height, 'right', right, 'left', left, 'top', top, 'bottom', bottom, 1231231233333)
       return {
         x: containerWidth - right - width,
         y: top,
@@ -203,35 +169,33 @@ function computedXandY(direction, imgContainer, currentLink) {
   }
 }
 
-function generatorId() {
+function generatorId(): string {
   return String(+new Date() + Math.floor(Math.random() * 100000));
 }
 
-function getDataId(dom) {
+function getDataId(dom: HTMLElement): string {
   if (!dom) return;
 
   return dom.getAttribute('data-id');
 }
 
-function classNames(className = '') {
+function classNames(className = ''): string {
   return className.trim();
 }
 
-function queryParentDataIdByDom(dom) {
+function queryParentDataIdByDom(dom: HTMLElement) {
   if (!dom) return;
+
   const dataId = dom && getDataId(dom);
   if (dataId) return [dataId, dom];
 
-  return queryParentDataIdByDom(dom.parentNode);
+  return queryParentDataIdByDom((dom as any).parentNode);
 }
 
 export {
   delay,
-  createDom,
   setSelectionStyle,
   setOffsetStyle,
-  createElement,
-  finddDomByDataId,
   findHasIdDom,
   transformXandY,
   computedXandY,
