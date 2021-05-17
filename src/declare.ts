@@ -16,6 +16,9 @@ export type selectionsType = { [id: string]: contentType };
 export interface ReactSelectionDrawProps {
   className?: string;
   style?: React.CSSProperties;
+  offset?: number;
+  width?: number;
+  height?: number;
   selectionChange?: (type: selectionChageType, selections: selectionsType, id: string) => void;
   selectionRender?: (id: string) => any;
   onDelete?: (id: string) => void | Promise<{}>;
