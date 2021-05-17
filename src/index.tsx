@@ -6,6 +6,12 @@ import { UpdateSelection, ReactSelectionDrawProps } from './declare';
 import './style.css';
 
 export default class SelectionDraw extends React.Component<ReactSelectionDrawProps, any> {
+  static defaultProps = {
+    offset: 50,
+    width: 400,
+    height: 400,
+  };
+
   selectionRef;
   controller: Controller;
   events;
