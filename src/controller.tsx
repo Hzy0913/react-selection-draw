@@ -3,26 +3,23 @@ import ReactDOM from 'react-dom';
 import Selection from './selection';
 import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
   generatorId } from './utils';
+import { selectionsType, contentType } from './declare';
 
 export default class Controller  {
-  selectionDom;
-  canvasDom: HTMLElement;
-  selectionsContainer;
   onDelete;
   selectionRender;
   selectionChange;
   selectionOnClick;
   selectOnChange;
-  selectionsDom: HTMLElement;
-  operationDom: HTMLElement;
-  createMinSize: number = 10;
-  offsetSize: number = 50;
 
-  selections: any = {};
-  imgInfo = {
-    width: 400 || undefined,
-    height: 400 ||  undefined,
-  };
+  canvasDom: HTMLElement;
+  selectionsDom: HTMLElement;
+
+  createMinSize: number = 10;
+  offsetSize: number;
+
+  selections: selectionsType = {};
+  containerInfo: { width: number; height: number; };
 
   currentSelectionId; // 当前热区id
   currentSelectionDom: HTMLElement; // 当前热区dom
@@ -48,15 +45,17 @@ export default class Controller  {
   resizeDirectionInfo; // 调整方向信息
 
   constructor(options) {
-    const { onDelete, selectionRender, selectionChange } = options || {};
-    this.setProps({ onDelete, selectionRender, selectionChange });
+    const { onDelete, selectionRender, selectionChange, offset, width, height } = options || {};
+    this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height });
     this.recordSelectionstate = this.recordSelectionstate.bind(this);
   }
 
   setProps(props) {
-    const { onDelete, selectionRender, selectionChange } = props;
+    const { onDelete, selectionRender, selectionChange, offset, width, height } = props;
 
+    this.containerInfo = { width, height };
     this.onDelete = onDelete;
+    this.offsetSize = offset;
     this.selectionRender = selectionRender;
     this.selectionChange = selectionChange;
   }
@@ -68,7 +67,7 @@ export default class Controller  {
   setLinkPositionDown(event) {
     const { target } = event;
     console.log(target.classList, 'targettarget')
-    setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
 
     if (target.classList.contains('selection-usable-dnd')) {
       const { id, node } = this.findHasIdDom(target);
@@ -108,16 +107,16 @@ export default class Controller  {
           const x = computedPosition({
             position: this.selections[id],
             offsetX: this.offsetX,
-            container: this.imgInfo,
+            container: this.containerInfo,
           });
           const y = computedPosition({
             position: this.selections[id],
             offsetY: this.offsetY,
-            container: this.imgInfo,
+            container: this.containerInfo,
           });
 
-          (this.selections[id] || {}).lastX = x;
-          (this.selections[id] || {}).lastY = y;
+          (this.selections[id] || {} as selectionsType).lastX = x;
+          (this.selections[id] || {} as selectionsType).lastY = y;
 
           this.selectionChange('move-ing', this.selections, id);
 
@@ -160,7 +159,7 @@ export default class Controller  {
   createLinkDown(event) {
     const { target } = event;
 
-    setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, false);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, false);
 
     const { offsetX, offsetY } = event as any;
 
@@ -198,7 +197,6 @@ export default class Controller  {
     if (this.moveStart) {
       const { offsetX, offsetY } = value || {};
       const { startX, startY } = this.createSelectionPosition || {};
-      // const { width: imgInfoWidth, height: imgInfoHeight } = this.imgInfo;
 
       if (!this.currentSelectionDom) {
         this.renderLink(undefined, false);
@@ -215,7 +213,7 @@ export default class Controller  {
       currentSelectionDom.style.width = width + 'px';
       currentSelectionDom.style.height = height + 'px';
 
-      const [directionX, directionY, posiX, posiY] = this.transformPosition(direction, startX, startY, this.imgInfo);
+      const [directionX, directionY, posiX, posiY] = this.transformPosition(direction, startX, startY, this.containerInfo);
       ['left', 'right', 'top', 'bottom'].forEach(attribute => currentSelectionDom.style[attribute] = 'auto');
 
       currentSelectionDom.style[directionX] = posiX + 'px';
@@ -262,14 +260,14 @@ export default class Controller  {
   }
 
   resizeLinkDown(value) {
-    setOffsetStyle(this.canvasDom, this.imgInfo, this.offsetSize, true);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
     const { target } = value || {};
     if (target.classList.contains('selection-resize')) {
       const [, direction] = target.className.split(' ').find(v => ~v.indexOf('selection-direction')).split('selection-direction-');
       this.currentSelectionDom = target.parentNode.parentNode;
       this.currentSelectionId = this.currentSelectionId || this.currentSelectionDom.getAttribute('data-id');
-      const currentPosition = this.selections[this.currentSelectionId] || {};
-      const { width: containerWidth, height: containerHeight } = this.imgInfo;
+      const currentPosition = (this.selections[this.currentSelectionId] || {}) as contentType;
+      const { width: containerWidth, height: containerHeight } = this.containerInfo;
 
       console.log(currentPosition, 213123123)
       this.resizeDirectionInfo = {
@@ -387,7 +385,7 @@ export default class Controller  {
       const { offsetX, offsetY } = value || {};
       // const currentPosition = this.selections[this.currentSelectionId];
       // const { x, y } = currentPosition;
-      const { width: containerWidth, height: containerHeight } = this.imgInfo;
+      const { width: containerWidth, height: containerHeight } = this.containerInfo;
       const currentSelectionDom = this.currentSelectionDom;
       const { direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY, leftBottomX, leftBottomY, height: lastHeight, width: lastWidth } = this.resizeDirectionInfo || {};
       let mergeStyle = {};
@@ -528,7 +526,7 @@ export default class Controller  {
     const currentLink = this.selections[this.currentSelectionId];
     if (!(this.resizeDirectionInfo || {}).direction || !currentLink) return;
 
-    const axis = computedXandY(this.resizeDirectionInfo.direction, this.imgInfo, currentLink);
+    const axis = computedXandY(this.resizeDirectionInfo.direction, this.containerInfo, currentLink);
     this.selections[this.currentSelectionId] = {
       ...currentLink,
       ...axis,
@@ -680,8 +678,8 @@ export default class Controller  {
     return offsetY > startY ? 'left-bottom' : 'left-top';
   }
 
-  transformPosition(direction, startX, startY, imgInfo) {
-    const { width, height } = imgInfo;
+  transformPosition(direction, startX, startY, containerInfo) {
+    const { width, height } = containerInfo;
     const right = width - startX;
     const bottom = height - startY;
 

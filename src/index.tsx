@@ -16,9 +16,13 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
   constructor(props) {
     super(props);
 
-    const { onDelete, selectionRender, selectionChange } = props;
+    const { onDelete, selectionRender, selectionChange, offset, width, height } = props;
+
     this.events = new Events();
     this.controller = new Controller({
+      width,
+      height,
+      offset,
       onDelete,
       selectionRender,
       selectionChange: selectionChange || (() => void 0),
@@ -118,11 +122,11 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
   }
 
   render() {
-    const { className = '' } = this.props;
+    const { className = '', width = 400, height = 400 } = this.props;
     return <div
       className={classNames(`selection-creator-container ${className}`)}
       ref={ref => this.selectionRef = ref}
-      style={{ width: 400, height: 400 }}
+      style={{ width, height }}
     >
       <div className="selection-creator-canvas-container" />
       <div className="selection-creator-selections-container" />
