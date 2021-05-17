@@ -78,7 +78,6 @@ export default class Controller  {
 
   setSelectionPositionDown(event) {
     const { target } = event;
-    console.log(target.classList, 'targettarget')
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
 
     if (target.classList.contains('selection-usable-dnd')) {
@@ -96,8 +95,6 @@ export default class Controller  {
   }
 
   setSelectionPositionMove(value) {
-    console.log(this.selectionMoveStart, 12333333)
-
     if (this.selectionMoveStart) {
       const id = this.currentSelectionId;
       !this.selectionMoving && this.selectionChange('move-start', this.selections, id);
@@ -109,8 +106,6 @@ export default class Controller  {
         this.currentX = clientX;
         this.currentY = clientY;
       } else if (this.currentSelectionDom) {
-        console.log(clientX, this.currentX, 1213123123);
-
         this.offsetX = clientX - this.currentX; // 设置当前拖拽link的偏移量
         this.offsetY = clientY - this.currentY;
 
@@ -148,8 +143,6 @@ export default class Controller  {
         const { lastX, lastY } = this.selections[id] || {};
         this.selections[id].x = lastX;
         this.selections[id].y = lastY;
-        console.log(lastX, 1213123123);
-
         this.selectionMoving && this.selectionChange('move-end', this.selections, id);
       }
       this.useDomSetselectionsInfo(this.currentSelectionDom);
@@ -280,7 +273,6 @@ export default class Controller  {
       const currentPosition = (this.selections[this.currentSelectionId] || {}) as contentType;
       const { width: containerWidth, height: containerHeight } = this.containerInfo;
 
-      console.log(currentPosition, 213123123)
       this.resizeDirectionInfo = {
         direction,
         leftTopX: currentPosition.x,
@@ -296,7 +288,6 @@ export default class Controller  {
       };
 
       let mergePosition = {};
-      console.log(direction)
 
       switch (direction) {
         case 'left-top':
@@ -405,7 +396,6 @@ export default class Controller  {
       let width;
       let height;
 
-      console.log(this.resizeDirectionInfo,lastHeight, 123123123123)
       switch (direction) {
         case 'left-top':
           mergeStyle = {
@@ -533,7 +523,6 @@ export default class Controller  {
   }
 
   recordSelectionState() {
-    console.log(this.currentSelectionId, 11112)
     const currentLink = this.selections[this.currentSelectionId];
     if (!(this.resizeDirectionInfo || {}).direction || !currentLink) return;
 
@@ -545,7 +534,6 @@ export default class Controller  {
   }
 
   renderSelection(createId, showOperation: boolean, link?) {
-    console.log(this.currentSelectionDom, 'currentSelectionDomcurrentSelectionDom')
     const id = createId || generatorId();
     this.currentSelectionDom = document.createElement('div');
     this.selections[id] = link || {};
@@ -734,7 +722,6 @@ export default class Controller  {
     if (dom) {
       const { width: domWidth, height: domHeight } = dom.getBoundingClientRect() || {};
 
-      console.log(dom.offsetLeft, 'dom.offsetLeftdom.offsetLeft')
       this.selections[currentSelectionId] = {
         width: domWidth,
         height: domHeight,
