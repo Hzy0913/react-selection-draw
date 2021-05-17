@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Selection from './selection';
 import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
-  generatorId } from './utils';
+  generatorId, findHasIdDom, getDataId } from './utils';
 import { selectionsType, contentType, directionType, UpdateSelection } from './declare';
 
 export default class Controller  {
@@ -81,11 +81,11 @@ export default class Controller  {
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
 
     if (target.classList.contains('selection-usable-dnd')) {
-      const { id, node } = this.findHasIdDom(target);
+      const { id, node } = findHasIdDom(target);
 
       this.currentSelectionId = id;
       this.currentSelectionDom = node;
-      this.useDomSetselectionsInfo(target);
+      this.setSelectionsInfoByDom(target);
       this.selectionMoveStart = true;
       this.canvasDom.style.display = 'block';
       this.canvasDom.classList.add('selection-grabbing');
@@ -145,7 +145,7 @@ export default class Controller  {
         this.selectionMoving && this.selectionChange('move-end', this.selections, id);
       }
 
-      this.useDomSetselectionsInfo(this.currentSelectionDom);
+      this.setSelectionsInfoByDom(this.currentSelectionDom);
 
       this.currentSelectionDom = undefined;
       this.currentX = undefined;
@@ -680,30 +680,14 @@ export default class Controller  {
     }
   }
 
-  findHasIdDom(dom) {
-    const resut: any = (function findId(node, count) {
-      if (!node || count > 3) return;
-
-      const id = node && node.getAttribute('data-id');
-
-      if (id) return { id, node };
-
-      return findId(node.parentNode, count + 1);
-    })(dom, 0);
-
-    return resut || {};
-  }
-
-  useDomSetselectionsInfo(dom) {
-    const currentSelectionId = dom && dom.getAttribute('data-id');
-    if (!currentSelectionId) return;
-
-    // const { width, x } = this.selections[currentSelectionId];
+  setSelectionsInfoByDom(dom) {
+    const selectionId = getDataId(dom);
+    if (!selectionId) return;
 
     if (dom) {
       const { width: domWidth, height: domHeight } = dom.getBoundingClientRect() || {};
 
-      this.selections[currentSelectionId] = {
+      this.selections[selectionId] = {
         width: domWidth,
         height: domHeight,
         x: dom.offsetLeft,
