@@ -98,19 +98,17 @@ export default class Controller  {
     if (this.selectionMoveStart) {
       const id = this.currentSelectionId;
       !this.selectionMoving && this.selectionChange('move-start', this.selections, id);
-
       this.selectionMoving = true;
 
       const { clientX, clientY } = value || {};
-      if (!this.currentX) { // 设置当前拖拽link的定位点
+      if (!this.currentX) { // init current selection position info
         this.currentX = clientX;
         this.currentY = clientY;
       } else if (this.currentSelectionDom) {
-        this.offsetX = clientX - this.currentX; // 设置当前拖拽link的偏移量
+        this.offsetX = clientX - this.currentX; // set offset of current selection
         this.offsetY = clientY - this.currentY;
 
         if (id) {
-          // const { x: positionX, y: positionY, width, height } = this.selections[id] || {};
           const x = computedPosition({
             position: this.selections[id],
             offsetX: this.offsetX,
@@ -127,8 +125,8 @@ export default class Controller  {
 
           this.selectionChange('move-ing', this.selections, id);
 
-          this.currentSelectionDom.style.left = x + 'px';
-          this.currentSelectionDom.style.top = y + 'px';
+          this.currentSelectionDom.style.left = `${x}px`;
+          this.currentSelectionDom.style.top = `${y}px`;
         }
       }
 
@@ -139,12 +137,14 @@ export default class Controller  {
   setSelectionPositionUp(value) {
     if (this.selectionMoveStart) {
       const id = this.currentSelectionId;
+
       if (id && this.selections[id]) {
         const { lastX, lastY } = this.selections[id] || {};
         this.selections[id].x = lastX;
         this.selections[id].y = lastY;
         this.selectionMoving && this.selectionChange('move-end', this.selections, id);
       }
+
       this.useDomSetselectionsInfo(this.currentSelectionDom);
 
       this.currentSelectionDom = undefined;
@@ -163,19 +163,16 @@ export default class Controller  {
 
   createSelectionDown(event) {
     const { target } = event;
+    const { offsetX, offsetY } = event;
 
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, false);
-
-    const { offsetX, offsetY } = event as any;
 
     if (target.classList.contains('selection-creator-selections-container')) {
       this.createMoveStart = true;
       this.createSelectionPosition.x = offsetX;
       this.createSelectionPosition.y = offsetY;
-
       this.createSelectionPosition.startX = offsetX;
       this.createSelectionPosition.startY = offsetY;
-
       this.canvasDom.style.display = 'block';
 
       return true;
@@ -207,25 +204,27 @@ export default class Controller  {
         this.renderSelection(undefined, false);
       }
 
-      const direction = this.drawDirection({offsetX, offsetY, startX, startY});
+      const direction = this.drawDirection({ offsetX, offsetY, startX, startY });
       const width = Math.abs(~direction.indexOf('right') ? offsetX - startX : startX - offsetX);
       const height = Math.abs(~direction.indexOf('bottom') ? offsetY - startY : startY - offsetY);
       const currentSelectionDom = this.currentSelectionDom;
 
       this.createSelectionPosition.width = width;
       this.createSelectionPosition.height = height;
+      currentSelectionDom.style.width = `${width}px`;
+      currentSelectionDom.style.height = `${height}px`;
 
-      currentSelectionDom.style.width = width + 'px';
-      currentSelectionDom.style.height = height + 'px';
+      const [directionX, directionY, posiX, posiY] = this.transformPosition(direction, startX,
+        startY, this.containerInfo);
 
-      const [directionX, directionY, posiX, posiY] = this.transformPosition(direction, startX, startY, this.containerInfo);
-      ['left', 'right', 'top', 'bottom'].forEach(attribute => currentSelectionDom.style[attribute] = 'auto');
+      ['left', 'right', 'top', 'bottom'].forEach(attribute =>
+        currentSelectionDom.style[attribute] = 'auto');
 
-      currentSelectionDom.style[directionX] = posiX + 'px';
-      currentSelectionDom.style[directionY] = posiY + 'px';
+      currentSelectionDom.style[directionX] = `${posiX}px`;
+      currentSelectionDom.style[directionY] = `${posiY}px`;
 
       this.selections[this.currentSelectionId] = {
-        ...this.transformXandY({direction, width, height, startX, startY}),
+        ...this.transformXandY({ direction, width, height, startX, startY }),
         width,
         height,
       };
@@ -244,28 +243,14 @@ export default class Controller  {
 
       this.resetSelectionContext();
 
-      // this.currentSelectionDom = undefined;
-      // this.canvasDom.style.display = 'none';
-      // this.currentX = undefined;
-      // this.currentY = undefined;
-      // this.createSelectionPosition = {
-      //   x: undefined,
-      //   y: undefined,
-      //   width: undefined,
-      //   height: undefined,
-      //   startX: undefined,
-      //   startY: undefined,
-      // };
-      //
-      // this.currentSelectionId = undefined;
-
       return true;
     }
   }
 
   resizeSelectionDown(value) {
-    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
     const { target } = value || {};
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
+
     if (target.classList.contains('selection-resize')) {
       const [, direction] = target.className.split(' ').find(v => ~v.indexOf('selection-direction')).split('selection-direction-');
       this.currentSelectionDom = target.parentNode.parentNode;
