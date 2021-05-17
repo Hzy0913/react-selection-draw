@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Selection from './selection';
 import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
   generatorId } from './utils';
-import { selectionsType, contentType, directionType } from './declare';
+import { selectionsType, contentType, directionType, UpdateSelection } from './declare';
 
 export default class Controller  {
   onDelete;
@@ -537,7 +537,7 @@ export default class Controller  {
   resizeSelectionUp(value) {
     if (this.selectionSizeStart) {
       this.selectionChange('resize-end', this.selections, this.currentSelectionId);
-      this.recordSelectionState(); // 记录最后的状态
+      this.recordSelectionState();
 
       this.resizeDirectionInfo = undefined;
       this.selectionSizeStart = false;
@@ -579,14 +579,15 @@ export default class Controller  {
     this.currentSelectionDom.setAttribute('data-id', id);
     this.currentSelectionId = id;
     const showOperationClassName = showOperation ? undefined : 'selection-no-show-operation';
-    this.currentSelectionDom.classList.add(...['selection-node', 'selection-usable-dnd', showOperationClassName].filter(v => v));
+    this.currentSelectionDom.classList.add(...['selection-node', 'selection-usable-dnd',
+      showOperationClassName].filter(v => v));
     this.selectionsDom.appendChild(this.currentSelectionDom);
 
     if (width) {
-      this.currentSelectionDom.style.left = left + 'px';
-      this.currentSelectionDom.style.top = top + 'px';
-      this.currentSelectionDom.style.width = width + 'px';
-      this.currentSelectionDom.style.height = height + 'px';
+      this.currentSelectionDom.style.left = `${left}px`;
+      this.currentSelectionDom.style.top = `${top}px`;
+      this.currentSelectionDom.style.width = `${width}px`;
+      this.currentSelectionDom.style.height = `${height}px`;
     }
 
     return this.currentSelectionDom;
@@ -594,6 +595,7 @@ export default class Controller  {
 
   removeSmallSelection() {
     const { width, height } = this.createSelectionPosition;
+
     if (width < this.createMinSize || height < this.createMinSize) {
       const currentSelectionId = this.currentSelectionId || (this.currentSelectionDom &&
         this.currentSelectionDom.getAttribute('data-id'));
@@ -609,11 +611,7 @@ export default class Controller  {
     }
   }
 
-  getselections() {
-    return this.selections;
-  }
-
-  updateSelection(options: {type: 'add' | 'update' | 'delete'; id?: string; content?: { x; y; width; height; node? }}) {
+  updateSelection(options: UpdateSelection) {
     const { id, type, content } = options || {};
     const { x, y, width, height, node } = content || {};
 
@@ -636,51 +634,6 @@ export default class Controller  {
       case 'delete':
         this.deleteSelection(id);
     }
-  }
-
-  linkDomDownTrigger(event) {
-    let selectedEvent;
-    const selectLinkClassName = 'image-map-link-selected';
-    const selections = this.selectionsDom.querySelectorAll('.selection-node');
-    selections.forEach(link => link.classList.remove(selectLinkClassName));
-
-    if (event.target.classList.contains('selection-node')) {
-      event.target.classList.add(selectLinkClassName);
-      selectedEvent = event;
-    }
-
-    if (event.target.classList.contains('link-resize') || event.target.classList.contains('link-node')) {
-      const linkDom = event.target.parentNode.parentNode;
-      linkDom.classList.add(selectLinkClassName);
-      selectedEvent = { target: linkDom };
-    }
-
-    this.selectOnChange && this.selectOnChange(selectedEvent);
-  }
-
-  linkDomClickTrigger(event) {
-    this.selectionOnClick && this.selectionOnClick(event)
-  }
-
-  addLink = (id, selections) => {
-    const linkDom = this.renderSelection(id, true, selections[id]);
-    const { x: left, y: top, width, height } = selections[id] || {};
-    linkDom.style.left = left + 'px';
-    linkDom.style.top = top + 'px';
-    linkDom.style.width = width + 'px';
-    linkDom.style.height = height + 'px';
-
-    this.currentSelectionId = undefined;
-    this.currentSelectionDom = undefined;
-
-    this.selections[id] = selections[id];
-  }
-
-  modifyLink = (id, selections) => {
-    const linkDom = document.querySelector(`[data-id="${id}"]`);
-    this.selectionsDom.removeChild(linkDom);
-
-    this.addLink(id, selections);
   }
 
   deleteSelection = (id) => {
@@ -735,7 +688,7 @@ export default class Controller  {
 
       if (id) return { id, node };
 
-      return findId(node.parentNode, count++);
+      return findId(node.parentNode, count + 1);
     })(dom, 0);
 
     return resut || {};
