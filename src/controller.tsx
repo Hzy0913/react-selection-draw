@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import Selection from './selection';
 import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
   generatorId } from './utils';
-import { selectionsType, contentType } from './declare';
+import { selectionsType, contentType, directionType } from './declare';
 
 export default class Controller  {
   onDelete;
@@ -21,10 +21,9 @@ export default class Controller  {
   selections: selectionsType = {};
   containerInfo: { width: number; height: number; };
 
-  currentSelectionId; // 当前热区id
-  currentSelectionDom: HTMLElement; // 当前热区dom
+  currentSelectionId;
+  currentSelectionDom: HTMLElement;
 
-  moveStart: boolean = false; // 开始绘制热区移动
   createSelectionPosition = {
     x: undefined,
     y: undefined,
@@ -34,15 +33,28 @@ export default class Controller  {
     startY: undefined,
   };
 
-  selectionMoveStart;  // 开始拖拽热区移动
-  selectionMoving;  // 拖拽热区移动中
-  currentX; // 当前热区移动X
-  currentY;
-  offsetX;  // 当前热区移动X偏移量
-  offsetY;
+  createMoveStart: boolean = false; // start move, when create a selection
+  selectionMoveStart: boolean = false; // start move, when change a selection position
+  selectionSizeStart: boolean = false; // start move, when resize a selection
+  selectionMoving: boolean = false;
 
-  selectionSizeStart; // 开始重置热区大小
-  resizeDirectionInfo; // 调整方向信息
+  currentX: number; // X of the current selection move
+  currentY: number; // Y of the current selection move
+  offsetX: number; // current offset of X
+  offsetY: number; // current offset of Y
+  resizeDirectionInfo: {
+    direction: directionType;
+    leftTopX: number;
+    leftTopY: number;
+    rightBottomX: number;
+    rightBottomY: number;
+    rightTopX: number;
+    rightTopY: number;
+    leftBottomX: number;
+    leftBottomY: number;
+    width: number;
+    height: number;
+  };
 
   constructor(options) {
     const { onDelete, selectionRender, selectionChange, offset, width, height } = options || {};
@@ -164,7 +176,7 @@ export default class Controller  {
     const { offsetX, offsetY } = event as any;
 
     if (target.classList.contains('selection-creator-selections-container')) {
-      this.moveStart = true;
+      this.createMoveStart = true;
       this.createSelectionPosition.x = offsetX;
       this.createSelectionPosition.y = offsetY;
 
@@ -181,7 +193,7 @@ export default class Controller  {
     this.currentSelectionDom && this.currentSelectionDom.classList.remove('selection-no-show-operation');
     this.currentSelectionId = undefined;
     this.currentSelectionDom = undefined;
-    this.moveStart = undefined;
+    this.createMoveStart = undefined;
     this.selectionMoveStart = undefined;
     this.selectionSizeStart = undefined;
     this.resizeDirectionInfo = undefined;
@@ -194,7 +206,7 @@ export default class Controller  {
   }
 
   createLinkMove(value) {
-    if (this.moveStart) {
+    if (this.createMoveStart) {
       const { offsetX, offsetY } = value || {};
       const { startX, startY } = this.createSelectionPosition || {};
 
@@ -230,7 +242,7 @@ export default class Controller  {
   }
 
   createLinkUp(value) {
-    if (this.moveStart) {
+    if (this.createMoveStart) {
       this.currentSelectionDom && this.currentSelectionDom.classList.remove('selection-no-show-operation');
 
       if (this.removeSmallLink()) return;
@@ -239,7 +251,6 @@ export default class Controller  {
 
       this.resetSelectionContext();
 
-      // this.moveStart = false;
       // this.currentSelectionDom = undefined;
       // this.canvasDom.style.display = 'none';
       // this.currentX = undefined;
@@ -510,7 +521,7 @@ export default class Controller  {
       this.selectionChange('resize-end', this.selections, this.currentSelectionId);
       this.recordSelectionstate(); // 记录最后的状态
 
-      this.resizeDirectionInfo = {};
+      this.resizeDirectionInfo = undefined;
       this.selectionSizeStart = false;
       this.currentSelectionDom = undefined;
       this.currentSelectionId = undefined;
