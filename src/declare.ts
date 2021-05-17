@@ -2,8 +2,16 @@ import React from 'react';
 
 type selectionChageType = 'create' | 'update' | 'add' | 'delete' | 'move-start' | 'move-ing' |
   'move-end' | 'resize-start' | 'resize-ing' | 'resize-end';
-type contentType = { x: number; y: number; width: number; height: number; node?: any };
-type selectionsType = { [id: string]: contentType };
+export type contentType = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  node?: any;
+  lastX?: number;
+  lastY?: number;
+};
+export type selectionsType = { [id: string]: contentType };
 
 export interface ReactSelectionDrawProps {
   className?: string;
