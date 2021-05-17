@@ -59,11 +59,11 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
     this.mousedownTimeStamp = +new Date;
     delay(300).then(() => this.mousedownTimeStamp = 0);
 
-    if (this.controller.setLinkPositionDown(event)) return;
+    if (this.controller.setSelectionPositionDown(event)) return;
 
-    if (this.controller.createLinkDown(event)) return;
+    if (this.controller.createSelectionDown(event)) return;
 
-    if (this.controller.resizeLinkDown(event)) return;
+    if (this.controller.resizeSelectionDown(event)) return;
   }
 
   selectionChange = (type, selections, id) => {
@@ -72,17 +72,17 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
   }
 
   mouseLeave = (target) => {
-    this.controller.removeSmallLink();
-    this.controller.recordSelectionstate();
+    this.controller.removeSmallSelection();
+    this.controller.recordSelectionState();
     this.controller.resetSelectionContext();
   }
 
   mouseMove = (event) => {
-    if (this.controller.setLinkPositionMove(event)) return;
+    if (this.controller.setSelectionPositionMove(event)) return;
 
-    if (this.controller.resizeLinkMove(event)) return;
+    if (this.controller.resizeSelectionMove(event)) return;
 
-    if (this.controller.createLinkMove(event)) return;
+    if (this.controller.createSelectionMove(event)) return;
   }
 
   selectionDomClickTrigger(target?) {
@@ -113,11 +113,11 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
   mouseUp = (target) => {
     this.selectionDomClickTrigger();
 
-    if (this.controller.setLinkPositionUp(target)) return;
+    if (this.controller.setSelectionPositionUp(target)) return;
 
-    if (this.controller.resizeLinkUp(target)) return;
+    if (this.controller.resizeSelectionUp(target)) return;
 
-    if (this.controller.createLinkUp(target)) return;
+    if (this.controller.createSelectionUp(target)) return;
   }
 
   selectionClick = (event) => {
