@@ -7,10 +7,7 @@ interface IAppProps {
   doDelete: (id) => void;
   selectionRender: (id) => any;
 }
-interface IAppState {
-
-}
-export default class Selection extends React.Component<IAppProps, IAppState> {
+export default class Selection extends React.Component<IAppProps, any> {
   onDeleteHandle = () => {
     const { onDelete, id, doDelete } = this.props;
 

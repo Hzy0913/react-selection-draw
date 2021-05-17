@@ -59,7 +59,7 @@ export default class Controller  {
   constructor(options) {
     const { onDelete, selectionRender, selectionChange, offset, width, height } = options || {};
     this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height });
-    this.recordSelectionstate = this.recordSelectionstate.bind(this);
+    this.recordSelectionState = this.recordSelectionState.bind(this);
   }
 
   setProps(props) {
@@ -76,7 +76,7 @@ export default class Controller  {
     Object.keys(doms).forEach(name => this[name] = doms[name]);
   }
 
-  setLinkPositionDown(event) {
+  setSelectionPositionDown(event) {
     const { target } = event;
     console.log(target.classList, 'targettarget')
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
@@ -95,7 +95,7 @@ export default class Controller  {
     }
   }
 
-  setLinkPositionMove(value) {
+  setSelectionPositionMove(value) {
     console.log(this.selectionMoveStart, 12333333)
 
     if (this.selectionMoveStart) {
@@ -141,7 +141,7 @@ export default class Controller  {
     }
   }
 
-  setLinkPositionUp(value) {
+  setSelectionPositionUp(value) {
     if (this.selectionMoveStart) {
       const id = this.currentSelectionId;
       if (id && this.selections[id]) {
@@ -168,7 +168,7 @@ export default class Controller  {
     }
   }
 
-  createLinkDown(event) {
+  createSelectionDown(event) {
     const { target } = event;
 
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, false);
@@ -205,13 +205,13 @@ export default class Controller  {
     this.canvasDom.style.display = 'none';
   }
 
-  createLinkMove(value) {
+  createSelectionMove(value) {
     if (this.createMoveStart) {
       const { offsetX, offsetY } = value || {};
       const { startX, startY } = this.createSelectionPosition || {};
 
       if (!this.currentSelectionDom) {
-        this.renderLink(undefined, false);
+        this.renderSelection(undefined, false);
       }
 
       const direction = this.drawDirection({offsetX, offsetY, startX, startY});
@@ -241,11 +241,11 @@ export default class Controller  {
     }
   }
 
-  createLinkUp(value) {
+  createSelectionUp(value) {
     if (this.createMoveStart) {
       this.currentSelectionDom && this.currentSelectionDom.classList.remove('selection-no-show-operation');
 
-      if (this.removeSmallLink()) return;
+      if (this.removeSmallSelection()) return;
 
       this.selectionChange('create', this.selections, this.currentSelectionId);
 
@@ -270,7 +270,7 @@ export default class Controller  {
     }
   }
 
-  resizeLinkDown(value) {
+  resizeSelectionDown(value) {
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
     const { target } = value || {};
     if (target.classList.contains('selection-resize')) {
@@ -391,7 +391,7 @@ export default class Controller  {
     this.canvasDom.classList[method](directionStyle[direction]);
   }
 
-  resizeLinkMove(value) {
+  resizeSelectionMove(value) {
     if (this.selectionSizeStart) {
       const { offsetX, offsetY } = value || {};
       // const currentPosition = this.selections[this.currentSelectionId];
@@ -516,10 +516,10 @@ export default class Controller  {
     }
   }
 
-  resizeLinkUp(value) {
+  resizeSelectionUp(value) {
     if (this.selectionSizeStart) {
       this.selectionChange('resize-end', this.selections, this.currentSelectionId);
-      this.recordSelectionstate(); // 记录最后的状态
+      this.recordSelectionState(); // 记录最后的状态
 
       this.resizeDirectionInfo = undefined;
       this.selectionSizeStart = false;
@@ -532,7 +532,7 @@ export default class Controller  {
     }
   }
 
-  recordSelectionstate() {
+  recordSelectionState() {
     console.log(this.currentSelectionId, 11112)
     const currentLink = this.selections[this.currentSelectionId];
     if (!(this.resizeDirectionInfo || {}).direction || !currentLink) return;
@@ -544,11 +544,7 @@ export default class Controller  {
     };
   }
 
-  createLink() {
-    this.currentSelectionDom = document.createElement('div');
-  }
-
-  renderLink(createId, showOperation: boolean, link?) {
+  renderSelection(createId, showOperation: boolean, link?) {
     console.log(this.currentSelectionDom, 'currentSelectionDomcurrentSelectionDom')
     const id = createId || generatorId();
     this.currentSelectionDom = document.createElement('div');
@@ -580,7 +576,7 @@ export default class Controller  {
     return this.currentSelectionDom;
   }
 
-  removeSmallLink() {
+  removeSmallSelection() {
     const { width, height } = this.createSelectionPosition;
     if (width < this.createMinSize || height < this.createMinSize) {
       const currentSelectionId = this.currentSelectionId || (this.currentSelectionDom &&
@@ -617,7 +613,7 @@ export default class Controller  {
       case 'add':
         const createId = generatorId();
         this.selections[createId] = content;
-        this.renderLink(createId, true, { x, y, width, height, node });
+        this.renderSelection(createId, true, { x, y, width, height, node });
         this.selectionChange('add', this.selections, this.currentSelectionId);
         this.resetSelectionContext();
         break;
@@ -651,7 +647,7 @@ export default class Controller  {
   }
 
   addLink = (id, selections) => {
-    const linkDom = this.renderLink(id, true, selections[id]);
+    const linkDom = this.renderSelection(id, true, selections[id]);
     const { x: left, y: top, width, height } = selections[id] || {};
     linkDom.style.left = left + 'px';
     linkDom.style.top = top + 'px';
