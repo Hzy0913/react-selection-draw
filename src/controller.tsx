@@ -252,7 +252,8 @@ export default class Controller  {
     setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
 
     if (target.classList.contains('selection-resize')) {
-      const [, direction] = target.className.split(' ').find(v => ~v.indexOf('selection-direction')).split('selection-direction-');
+      const [, direction] = target.className.split(' ').find(v =>
+        ~v.indexOf('selection-direction')).split('selection-direction-');
       this.currentSelectionDom = target.parentNode.parentNode;
       this.currentSelectionId = this.currentSelectionId || this.currentSelectionDom.getAttribute('data-id');
       const currentPosition = (this.selections[this.currentSelectionId] || {}) as contentType;
@@ -271,7 +272,6 @@ export default class Controller  {
         width: currentPosition.width,
         height: currentPosition.height,
       };
-
       let mergePosition = {};
 
       switch (direction) {
@@ -308,7 +308,7 @@ export default class Controller  {
             right: this.resizeDirectionInfo.rightTopX,
             top: this.resizeDirectionInfo.rightTopY,
           };
-          setSelectionStyle(this.currentSelectionDom, mergePosition, true)
+          setSelectionStyle(this.currentSelectionDom, mergePosition, true);
           break;
         case 'bottom':
           mergePosition = {
@@ -370,25 +370,30 @@ export default class Controller  {
   resizeSelectionMove(value) {
     if (this.selectionSizeStart) {
       const { offsetX, offsetY } = value || {};
-      // const currentPosition = this.selections[this.currentSelectionId];
-      // const { x, y } = currentPosition;
       const { width: containerWidth, height: containerHeight } = this.containerInfo;
       const currentSelectionDom = this.currentSelectionDom;
-      const { direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY, leftBottomX, leftBottomY, height: lastHeight, width: lastWidth } = this.resizeDirectionInfo || {};
-      let mergeStyle = {};
+      const {
+        direction, leftTopX, leftTopY, rightTopX, rightTopY, rightBottomX, rightBottomY,
+        leftBottomX, leftBottomY, height: lastHeight, width: lastWidth,
+      } = this.resizeDirectionInfo || {};
       const offsetComputedX = offsetX - this.offsetSize;
       const offsetComputedY = offsetY - this.offsetSize;
-      let width;
-      let height;
+      let mergeStyle = {};
 
       switch (direction) {
         case 'left-top':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: rightBottomX, containerSize: containerWidth,
+              direction,
+              offset: offsetComputedX,
+              position: rightBottomX,
+              containerSize: containerWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: rightBottomY, containerSize: containerHeight,
+              direction,
+              offset: offsetComputedY,
+              position: rightBottomY,
+              containerSize: containerHeight,
             })(containerHeight),
           };
 
@@ -397,21 +402,33 @@ export default class Controller  {
         case 'top':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftBottomX, sectionSize: lastWidth,
+              direction,
+              offset: offsetComputedX,
+              position: leftBottomX,
+              sectionSize: lastWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: leftBottomY, containerSize: containerHeight,
+              direction,
+              offset: offsetComputedY,
+              position: leftBottomY,
+              containerSize: containerHeight,
             })(containerHeight),
           };
+
           setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
         case 'right-top':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftBottomX,
+              direction,
+              offset: offsetComputedX,
+              position: leftBottomX,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: leftBottomY, containerSize: containerWidth,
+              direction,
+              offset: offsetComputedY,
+              position: leftBottomY,
+              containerSize: containerWidth,
             })(containerHeight),
           };
 
@@ -420,65 +437,91 @@ export default class Controller  {
         case 'right':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftTopX, containerSize: containerWidth,
+              direction,
+              offset: offsetComputedX,
+              position: leftTopX,
+              containerSize: containerWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedX, position: leftTopY, sectionSize: lastHeight,
+              direction,
+              offset: offsetComputedX,
+              position: leftTopY,
+              sectionSize: lastHeight,
             })(containerHeight),
           };
 
-          setSelectionStyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
         case 'left-bottom':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: rightTopX, containerSize: containerWidth,
+              direction,
+              offset: offsetComputedX,
+              position: rightTopX,
+              containerSize: containerWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: rightTopY,
+              direction,
+              offset: offsetComputedY,
+              position: rightTopY,
             })(containerHeight),
           };
 
-          setSelectionStyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
         case 'bottom':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftTopX, sectionSize: lastWidth,
+              direction,
+              offset: offsetComputedX,
+              position: leftTopX,
+              sectionSize: lastWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: leftTopY, containerSize: containerHeight,
+              direction,
+              offset: offsetComputedY,
+              position: leftTopY,
+              containerSize: containerHeight,
             })(containerHeight),
           };
+
           setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
         case 'right-bottom':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: leftTopX,
+              direction,
+              offset: offsetComputedX,
+              position: leftTopX,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedY, position: leftTopY
+              direction,
+              offset: offsetComputedY,
+              position: leftTopY,
             })(containerHeight),
           };
-          setSelectionStyle(currentSelectionDom, mergeStyle)
+
+          setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
         case 'left':
           mergeStyle = {
             width: computedSize({
-              direction, offset: offsetComputedX, position: rightTopX, containerSize: containerWidth,
+              direction,
+              offset: offsetComputedX,
+              position: rightTopX,
+              containerSize: containerWidth,
             })(containerWidth),
             height: computedSize({
-              direction, offset: offsetComputedX, position: rightTopY, sectionSize: lastHeight,
+              direction,
+              offset: offsetComputedX,
+              position: rightTopY,
+              sectionSize: lastHeight,
             })(containerHeight),
           };
 
-          setSelectionStyle(currentSelectionDom, mergeStyle)
+          setSelectionStyle(currentSelectionDom, mergeStyle);
           break;
       }
-
-      currentSelectionDom.style.width = width + 'px';
-      currentSelectionDom.style.height = height + 'px';
 
       this.selections[this.currentSelectionId] = {
         ...this.selections[this.currentSelectionId],
