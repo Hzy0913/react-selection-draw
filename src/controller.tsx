@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Selection from './selection';
-import { computedPosition, setSelectionStyle, computedXandY, computedSize, setOffsetStyle,
-  generatorId, findHasIdDom, getDataId } from './utils';
-import { selectionsType, contentType, directionType, UpdateSelection } from './declare';
+import { computedCreate, computedPosition, setSelectionStyle, computedXandY, computedSize,
+  setOffsetStyle, generatorId, findHasIdDom, getDataId } from './utils';
+import { selectionsType, contentType, directionType, UpdateSelection,
+  createSelectionPositionType, quadrangularDirectionType } from './declare';
 
 export default class Controller  {
   onDelete;
@@ -24,7 +25,7 @@ export default class Controller  {
   currentSelectionId;
   currentSelectionDom: HTMLElement;
 
-  createSelectionPosition = {
+  createSelectionPosition: createSelectionPositionType = {
     x: undefined,
     y: undefined,
     width: undefined,
@@ -197,16 +198,29 @@ export default class Controller  {
 
   createSelectionMove(value) {
     if (this.createMoveStart) {
-      const { offsetX, offsetY } = value || {};
+      const { width: containerWidth, height: containerHeight } = this.containerInfo;
       const { startX, startY } = this.createSelectionPosition || {};
+      let { offsetX, offsetY } = value || {};
+      offsetX -= this.offsetSize;
+      offsetY -= this.offsetSize;
 
       if (!this.currentSelectionDom) {
         this.renderSelection(undefined, false);
       }
 
       const direction = this.drawDirection({ offsetX, offsetY, startX, startY });
-      const width = Math.abs(~direction.indexOf('right') ? offsetX - startX : startX - offsetX);
-      const height = Math.abs(~direction.indexOf('bottom') ? offsetY - startY : startY - offsetY);
+      const width = computedCreate({
+        direction,
+        offsetX,
+        createPosition: this.createSelectionPosition,
+        containerSize: containerWidth,
+      });
+      const height = computedCreate({
+        direction,
+        offsetY,
+        createPosition: this.createSelectionPosition,
+        containerSize: containerHeight,
+      });
       const currentSelectionDom = this.currentSelectionDom;
 
       this.createSelectionPosition.width = width;
@@ -646,7 +660,7 @@ export default class Controller  {
     }
   }
 
-  drawDirection({ offsetX, offsetY, startX, startY }) {
+  drawDirection({ offsetX, offsetY, startX, startY }): quadrangularDirectionType {
     if (offsetX > startX) {
       return offsetY > startY  ? 'right-bottom' : 'right-top';
     }
