@@ -2,6 +2,7 @@ import React from 'react';
 
 type selectionChageType = 'create' | 'update' | 'add' | 'delete' | 'move-start' | 'move-ing' |
   'move-end' | 'resize-start' | 'resize-ing' | 'resize-end';
+export type quadrangularDirectionType = 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top';
 export type contentType = {
   x: number;
   y: number;
@@ -32,7 +33,7 @@ export interface UpdateSelection {
 }
 
 export interface TransformXandYType {
-  direction: 'right-bottom' | 'right-top' | 'left-top' | 'left-bottom';
+  direction: quadrangularDirectionType;
   width: number;
   height: number;
   startX: number;
@@ -66,7 +67,7 @@ export type createSelectionPositionType = {
 };
 
 export type computedCreateType = {
-  direction: 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top';
+  direction: quadrangularDirectionType
   offsetX?: number;
   offsetY?: number;
   containerSize: number;
