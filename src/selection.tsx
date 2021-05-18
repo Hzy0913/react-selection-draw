@@ -13,7 +13,6 @@ export default class Selection extends React.Component<IAppProps, any> {
 
     if (onDelete) {
       const result: any = onDelete(id) || {};
-      console.log(onDelete, 'onDeleteonDeleteonDelete')
 
       if (result.then) {
         result.then(() => doDelete(id));
