@@ -55,3 +55,20 @@ export interface ComputedSizeType {
   containerSize?: number;
   sectionSize?: number;
 }
+
+export type createSelectionPositionType = {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  startX: number,
+  startY: number,
+};
+
+export type computedCreateType = {
+  direction: 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top';
+  offsetX?: number;
+  offsetY?: number;
+  containerSize: number;
+  createPosition: createSelectionPositionType
+};
