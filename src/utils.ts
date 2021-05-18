@@ -1,18 +1,16 @@
-import { TransformXandYType, ComputedSizeType, directionType } from './declare';
+import { TransformXandYType, ComputedSizeType, directionType, computedCreateType } from './declare';
 
 function setOffsetStyle(
   node: HTMLElement,
   container: { width: number, height: number },
   offsetSize = 0,
-  isSet: boolean,
 ) {
   const { width, height } = container;
-  const size = isSet ? offsetSize : 0;
   const styles = {
-    width: `${width + (size * 2)}px`,
-    height: `${height + (size * 2)}px`,
-    left: `${-size}px`,
-    top: `${-size}px`,
+    width: `${width + (offsetSize * 2)}px`,
+    height: `${height + (offsetSize * 2)}px`,
+    left: `${-offsetSize}px`,
+    top: `${-offsetSize}px`,
   };
 
   Object.keys(styles).forEach((attribute: string) => node.style[attribute] = styles[attribute]);
@@ -31,8 +29,8 @@ function delay(time?: number) {
   return new Promise(resolve => setTimeout(() => resolve(), time));
 }
 
-function findHasIdDom(dom) {
-  const result: HTMLElement | void = (function findId(node, count: number) {
+function findHasIdDom(dom): { id: string, node: HTMLElement } {
+  const result = (function findId(node, count: number) {
     if (!node || count > 3) return;
 
     const id = node && node.getAttribute('data-id');
@@ -56,6 +54,33 @@ function transformXandY({ direction, width, height, startX, startY }: TransformX
     case 'left-bottom':
       return { x: startX - width, y: startY };
   }
+}
+
+function computedCreate(
+  { direction, offsetX, offsetY, createPosition, containerSize }: computedCreateType,
+) {
+  const { startX, startY } = createPosition || {};
+
+  if (typeof offsetX === 'number') {
+    if (offsetX < 0) {
+      return startX;
+    }
+    if (offsetX > containerSize) {
+      return containerSize - startX;
+    }
+
+    return Math.abs(~direction.indexOf('right') ? offsetX - startX : startX - offsetX);
+  }
+
+  if (offsetY < 0) {
+    return startY;
+  }
+
+  if (offsetY > containerSize) {
+    return containerSize - startY;
+  }
+
+  return Math.abs(~direction.indexOf('bottom') ? offsetY - startY : startY - offsetY);
 }
 
 function computedPosition({ position, offsetX, offsetY, container } : any) {
@@ -82,7 +107,7 @@ function computedPosition({ position, offsetX, offsetY, container } : any) {
 }
 
 function computedSize(
-  { direction, offset, position, containerSize, sectionSize }: ComputedSizeType
+  { direction, offset, position, containerSize, sectionSize }: ComputedSizeType,
 ) {
   const minSizeNume = 12;
   let size = 0;
@@ -110,7 +135,7 @@ function computedSize(
       size = offset - position;
       break;
     case 'left':
-      size = sectionSize ? sectionSize : containerSize - offset - position
+      size = sectionSize ? sectionSize : containerSize - offset - position;
       break;
   }
 
@@ -205,4 +230,5 @@ export {
   getDataId,
   queryParentDataIdByDom,
   classNames,
+  computedCreate,
 };
