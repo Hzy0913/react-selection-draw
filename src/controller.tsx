@@ -79,7 +79,7 @@ export default class Controller  {
 
   setSelectionPositionDown(event) {
     const { target } = event;
-    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize);
 
     if (target.classList.contains('selection-usable-dnd')) {
       const { id, node } = findHasIdDom(target);
@@ -166,7 +166,7 @@ export default class Controller  {
     const { target } = event;
     const { offsetX, offsetY } = event;
 
-    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, false);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize);
 
     if (target.classList.contains('selection-creator-selections-container')) {
       this.createMoveStart = true;
@@ -263,7 +263,7 @@ export default class Controller  {
 
   resizeSelectionDown(value) {
     const { target } = value || {};
-    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize, true);
+    setOffsetStyle(this.canvasDom, this.containerInfo, this.offsetSize);
 
     if (target.classList.contains('selection-resize')) {
       const [, direction] = target.className.split(' ').find(v =>
@@ -442,7 +442,7 @@ export default class Controller  {
               direction,
               offset: offsetComputedY,
               position: leftBottomY,
-              containerSize: containerWidth,
+              containerSize: containerHeight,
             })(containerHeight),
           };
 
