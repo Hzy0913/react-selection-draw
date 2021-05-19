@@ -5,14 +5,15 @@ const defaultExport = ENV.npm_config_export;
 
 const prdWebpackConfig = {
   mode: 'production',
-  entry: path.resolve(__dirname, '../src/arc-progress.tsx'),
+  entry: path.resolve(__dirname, '../src/index.tsx'),
   output: {
     path: path.join(__dirname, '../lib'),
     filename: 'index.js',
     libraryTarget: 'commonjs2'
   },
   externals: {
-    react: 'react'
+    react: 'react',
+    'react-dom': 'react-dom',
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
