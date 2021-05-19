@@ -1,5 +1,3 @@
-import React from 'react';
-
 type selectionChageType = 'create' | 'update' | 'add' | 'delete' | 'move-start' | 'move-ing' |
   'move-end' | 'resize-start' | 'resize-ing' | 'resize-end';
 export type quadrangularDirectionType = 'right-bottom' | 'right-top' | 'left-bottom' | 'left-top';
