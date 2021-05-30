@@ -18,13 +18,10 @@
   "files": [
     "example/demos.ts",
     "example/react.tsx",
-    "src/arc-progress.tsx"
+    "src/index.tsx"
   ],
   "include": [
-    "src/index.tsx",
-    "src/selection.tsx",
-    "src/events.ts",
-    "src/controller-2.ts",
+    "src/**/*",
     "example/**/*",
     "static/**/*"
   ],
