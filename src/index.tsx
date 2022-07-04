@@ -22,7 +22,8 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
   constructor(props) {
     super(props);
 
-    const { onDelete, selectionRender, selectionChange, offset, width, height } = props;
+    const { onDelete, selectionRender, selectionChange, offset, width, height,
+      minWidth, minHeight } = props;
 
     this.events = new Events();
     this.controller = new Controller({
@@ -32,11 +33,13 @@ export default class SelectionDraw extends React.Component<ReactSelectionDrawPro
       onDelete,
       selectionRender,
       selectionChange: selectionChange || (() => void 0),
+      minWidth,
+      minHeight,
     });
   }
 
-  updateSelection(options: UpdateSelection) {
-    this.controller.updateSelection(options);
+  selectionAction(options: UpdateSelection) {
+    return this.controller.updateSelection(options);
   }
 
   componentDidMount() {

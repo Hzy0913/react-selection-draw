@@ -20,12 +20,14 @@ export interface ReactSelectionDrawProps {
   height?: number;
   selectionChange?: (type: selectionChageType, selections: selectionsType, id: string) => void;
   selectionRender?: (id: string) => any;
-  onDelete?: (id: string) => void | Promise<{}>;
+  onDelete?: (id: string) => void | Promise<any>;
   selectionOnClick?: (id: string, target) => void;
+  minWidth?: number;
+  minHeight?: number;
 }
 
 export interface UpdateSelection {
-  type: 'add' | 'update' | 'delete';
+  type: 'add' | 'update' | 'delete' | 'get';
   id?: string;
   content?: contentType;
 }
