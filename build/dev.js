@@ -7,6 +7,7 @@ const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 
 const port = 6868;
 const host = '0.0.0.0';
+
 module.exports = {
   mode: 'development',
   entry: path.resolve(__dirname, '../example/react.tsx'),
