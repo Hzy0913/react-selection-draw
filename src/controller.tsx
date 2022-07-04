@@ -16,7 +16,9 @@ export default class Controller  {
   canvasDom: HTMLElement;
   selectionsDom: HTMLElement;
 
-  createMinSize: number = 10;
+  minWidth: number = 10;
+  minHeight: number = 10;
+
   offsetSize: number;
 
   selections: selectionsType = {};
@@ -58,19 +60,27 @@ export default class Controller  {
   };
 
   constructor(options) {
-    const { onDelete, selectionRender, selectionChange, offset, width, height } = options || {};
-    this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height });
+    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight } = options || {};
+    this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight });
     this.recordSelectionState = this.recordSelectionState.bind(this);
   }
 
   setProps(props) {
-    const { onDelete, selectionRender, selectionChange, offset, width, height } = props;
+    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight } = props;
 
     this.containerInfo = { width, height };
     this.onDelete = onDelete;
     this.offsetSize = offset;
     this.selectionRender = selectionRender;
     this.selectionChange = selectionChange;
+
+    if (typeof minWidth === 'number') {
+      this.minWidth = minWidth;
+    }
+
+    if (typeof minWidth === 'number') {
+      this.minHeight = minHeight;
+    }
   }
 
   bindElementRef(doms) {
@@ -610,7 +620,7 @@ export default class Controller  {
   removeSmallSelection() {
     const { width, height } = this.createSelectionPosition;
 
-    if (width < this.createMinSize || height < this.createMinSize) {
+    if (width < this.minWidth || height < this.minHeight) {
       const currentSelectionId = this.currentSelectionId || (this.currentSelectionDom &&
         this.currentSelectionDom.getAttribute('data-id'));
 
@@ -647,6 +657,10 @@ export default class Controller  {
         break;
       case 'delete':
         this.deleteSelection(id);
+        break;
+      case 'get':
+        if (typeof id !== 'undefined') return this.selections[id];
+        return this.selections;
     }
   }
 
