@@ -5,7 +5,7 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const Chalk = require('chalk');
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
 
-const port = 8989;
+const port = 6868;
 const host = '0.0.0.0';
 module.exports = {
   mode: 'development',
@@ -57,7 +57,7 @@ module.exports = {
     }),
     new FriendlyErrorsPlugin({
       compilationSuccessInfo: {
-        notes: [`💻 Running: ${Chalk.green(`http://${host}:${port}`)} 🧞`],
+        notes: [`💻 Running: ${Chalk.green(`http://localhost:${port}`)} 🧞`],
       },
       onErrors: undefined
     }),
