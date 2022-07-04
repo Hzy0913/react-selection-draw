@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM, { unmountComponentAtNode } from 'react-dom';
 import Selection from './selection';
 import { computedCreate, computedPosition, setSelectionStyle, computedXandY, computedSize,
   setOffsetStyle, generatorId, findHasIdDom, getDataId } from './utils';
@@ -653,6 +653,7 @@ export default class Controller  {
   deleteSelection = (id) => {
     if (this.selections[id]) {
       const selection = this.selectionsDom.querySelector(`[data-id="${id}"]`);
+      unmountComponentAtNode && unmountComponentAtNode(selection);
       this.selectionsDom.removeChild(selection);
       delete this.selections[id];
 
