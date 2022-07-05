@@ -6,6 +6,7 @@ interface IAppProps {
   node: any;
   doDelete: (id) => void;
   selectionRender: (id) => any;
+  createOperator?: (id) => React.ReactNode;
 }
 export default class Selection extends React.Component<IAppProps, any> {
   onDeleteHandle = () => {
@@ -25,10 +26,11 @@ export default class Selection extends React.Component<IAppProps, any> {
   }
 
   render() {
-    const { node } = this.props;
+    const { node, createOperator, id } = this.props;
 
     return <div className="selection-item-content" >
       <div className="selection-item-handle">
+        {createOperator && createOperator(id)}
         <span
           className="selection-item-operator selection-item-delete"
           onClick={this.onDeleteHandle}
