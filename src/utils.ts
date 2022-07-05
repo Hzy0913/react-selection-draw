@@ -26,7 +26,7 @@ function setSelectionStyle(
 }
 
 function delay(time?: number) {
-  return new Promise(resolve => setTimeout(() => resolve(), time));
+  return new Promise(resolve => setTimeout(() => resolve(1), time));
 }
 
 function findHasIdDom(dom): { id: string, node: HTMLElement } {
