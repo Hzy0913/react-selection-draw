@@ -2,6 +2,10 @@
   position: relative;
   background: #0a3d6b;
 }
+.selection-creator-container .selection-creator-children{
+  position: relative;
+  z-index:0;
+}
 .selection-creator-container .selection-creator-canvas-container{
   position: absolute;
   left: 0;
@@ -34,16 +38,19 @@
   box-sizing: border-box;
 }
 .selection-creator-container .selection-creator-selections-container .selection-node:hover .selection-item-handle{
-  display: block !important;
+  visibility: visible !important;
 }
 .selection-creator-container .selection-creator-selections-container .selection-node .selection-item-content .selection-item-handle{
   position: absolute;
   top: 0px;
   right: 0;
+  visibility: hidden;
+  display:flex;
+}
+.selection-creator-container .selection-creator-selections-container .selection-node .selection-item-content .selection-item-handle .selection-item-operator{
   background: rgba(255,255,255,.4);
   padding: 2px 5px;
   font-size: 12px;
-  display: none;
 }
 .selection-creator-container .selection-creator-selections-container .selection-node.selection-no-show-operation .selection-item-content{
   display: none;
