@@ -24,6 +24,7 @@ export interface ReactSelectionDrawProps {
   selectionOnClick?: (id: string, target) => void;
   minWidth?: number;
   minHeight?: number;
+  createOperator: (id) => React.ReactNode;
 }
 
 export interface UpdateSelection {

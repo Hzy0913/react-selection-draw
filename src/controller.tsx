@@ -27,6 +27,8 @@ export default class Controller  {
   currentSelectionId;
   currentSelectionDom: HTMLElement;
 
+  createOperator: (id) => React.ReactNode;
+
   createSelectionPosition: createSelectionPositionType = {
     x: undefined,
     y: undefined,
@@ -60,13 +62,13 @@ export default class Controller  {
   };
 
   constructor(options) {
-    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight } = options || {};
-    this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight });
+    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight, createOperator } = options || {};
+    this.setProps({ onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight, createOperator });
     this.recordSelectionState = this.recordSelectionState.bind(this);
   }
 
   setProps(props) {
-    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight } = props;
+    const { onDelete, selectionRender, selectionChange, offset, width, height, minWidth, minHeight, createOperator } = props;
 
     this.containerInfo = { width, height };
     this.onDelete = onDelete;
@@ -80,6 +82,10 @@ export default class Controller  {
 
     if (typeof minWidth === 'number') {
       this.minHeight = minHeight;
+    }
+
+    if (typeof createOperator === 'function') {
+      this.createOperator = createOperator;
     }
   }
 
@@ -598,6 +604,7 @@ export default class Controller  {
       onDelete={this.onDelete}
       doDelete={this.deleteSelection}
       selectionRender={this.selectionRender}
+      createOperator={this.createOperator}
     />, this.currentSelectionDom);
 
     this.currentSelectionDom.setAttribute('data-id', id);
